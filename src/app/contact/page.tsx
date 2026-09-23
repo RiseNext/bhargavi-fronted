@@ -129,7 +129,10 @@ export default function ContactPage() {
                   </span>
 
                   <h2 className="mt-stack label text-terracotta">{card.label}</h2>
-                  <div className="mt-2.5 flex-1 space-y-0.5 text-body text-ink-2">
+                  {/* `anywhere`, not `break-word`: the email address is a
+                      single unbreakable token, and only `anywhere` also
+                      shrinks the min-content width so the grid track behaves. */}
+                  <div className="mt-2.5 flex-1 space-y-0.5 text-body text-ink-2 [overflow-wrap:anywhere]">
                     {card.lines.map((line) => (
                       <p key={line}>{line}</p>
                     ))}

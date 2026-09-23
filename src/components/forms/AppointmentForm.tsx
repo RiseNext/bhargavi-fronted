@@ -4,12 +4,17 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Field, FormStatus, Select, TextArea } from "./fields";
 import { services } from "@/content/services";
+import { formatDateTime, whatsappUrl } from "@/lib/whatsapp";
 
 type State = "idle" | "sending" | "sent" | "error";
 
 /**
- * Appointment request. Posts to /api/contact — that route is a STUB that
- * validates and logs but does not yet deliver mail. See docs/CONTENT-TODO.md.
+ * Appointment request, delivered over WhatsApp.
+ *
+ * The visitor's WhatsApp opens with the whole request composed, addressed to
+ * the clinic; they press send. It arrives from their own number, so the reply
+ * goes straight back in the same thread. /api/contact is still pinged in the
+ * background purely as a server-side record — it is not the delivery path.
  */
 export function AppointmentForm({
   defaultService = "",
@@ -19,27 +24,38 @@ export function AppointmentForm({
   compact?: boolean;
 }) {
   const [state, setState] = useState<State>("idle");
+  const [link, setLink] = useState<string | null>(null);
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
-    setState("sending");
+    const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
 
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          kind: "appointment",
-          ...Object.fromEntries(new FormData(form)),
-        }),
-      });
-      if (!res.ok) throw new Error(String(res.status));
-      setState("sent");
-      form.reset();
-    } catch {
-      setState("error");
-    }
+    const service = services.find((s) => s.slug === data.service);
+
+    const url = whatsappUrl("New appointment request", [
+      { label: "Name", value: data.name },
+      { label: "Phone", value: data.phone },
+      { label: "Email", value: data.email },
+      { label: "Therapy", value: service?.title ?? "Not sure — please advise" },
+      { label: "Preferred time", value: formatDateTime(data.datetime) },
+      { label: "Concern", value: data.message },
+    ]);
+
+    setLink(url);
+
+    // Opened synchronously, before any await — an async gap here loses the
+    // user-gesture context and the browser blocks the tab.
+    const opened = window.open(url, "_blank", "noopener,noreferrer");
+    setState("sent");
+    if (opened) form.reset();
+
+    // Background record only; never let a failure here affect the handover.
+    void fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kind: "appointment", ...data }),
+    }).catch(() => {});
   }
 
   return (
@@ -92,12 +108,24 @@ export function AppointmentForm({
       </label>
 
       <Button type="submit" size="lg" disabled={state === "sending"} className="w-full">
-        {state === "sending" ? "Sending…" : "Request appointment"}
+        Send on WhatsApp
       </Button>
 
       <FormStatus
         state={state}
-        successText="Thank you — we've received your request and will call you back shortly."
+        successText="Your request is ready in WhatsApp — press send there and we'll call you back shortly."
+        action={
+          link && (
+            <a
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium underline underline-offset-4"
+            >
+              WhatsApp didn&apos;t open? Tap here
+            </a>
+          )
+        }
       />
     </form>
   );

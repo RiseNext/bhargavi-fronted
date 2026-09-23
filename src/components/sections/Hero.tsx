@@ -44,10 +44,10 @@ export function Hero() {
               Wellness
             </Wipe>
             <Wipe as="span" immediate delay={110} className="block">
-              <span className="italic text-terracotta">Center</span> in
+              Center made
             </Wipe>
             <Wipe as="span" immediate delay={220} className="block">
-              Chikkadpally
+              for <span className="italic text-terracotta">you</span>
             </Wipe>
           </h1>
 

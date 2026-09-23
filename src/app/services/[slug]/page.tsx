@@ -9,6 +9,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Arc } from "@/components/ui/Decor";
 import { ServiceCard } from "@/components/cards/ServiceCard";
 import { AppointmentForm } from "@/components/forms/AppointmentForm";
+import { whatsappUrl } from "@/lib/whatsapp";
 import { CtaBand } from "@/components/sections/HomeSections";
 import { services, serviceBySlug } from "@/content/services";
 import { site } from "@/lib/site";
@@ -187,8 +188,10 @@ export default async function ServiceDetailPage({ params }: Params) {
                 <p className="mt-stack text-small text-muted">
                   Mon–Sat · 10:00 AM – 1:30 PM and 4:00 PM – 7:30 PM
                 </p>
+                {/* Carries the therapy name, so the clinic sees what the
+                    enquiry is about before reading a word. */}
                 <ButtonLink
-                  href={site.whatsapp.href}
+                  href={whatsappUrl(`Enquiry about ${service.title}`)}
                   variant="outline"
                   className="mt-stack w-full"
                 >

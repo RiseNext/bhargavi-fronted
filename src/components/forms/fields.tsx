@@ -149,14 +149,17 @@ function Label({
 export function FormStatus({
   state,
   successText,
+  action,
 }: {
   state: "idle" | "sending" | "sent" | "error";
   successText: string;
+  /** Fallback control — e.g. a manual "Open WhatsApp" link if the tab was blocked. */
+  action?: React.ReactNode;
 }) {
   if (state === "idle" || state === "sending") return null;
 
   return (
-    <p
+    <div
       role="status"
       className={cn(
         "rounded-md px-4 py-3 text-small",
@@ -165,9 +168,12 @@ export function FormStatus({
           : "bg-terracotta/10 text-terracotta-deep",
       )}
     >
-      {state === "sent"
-        ? successText
-        : `Something went wrong. Please call us on +91 70751 57013 instead.`}
-    </p>
+      <p>
+        {state === "sent"
+          ? successText
+          : `Something went wrong. Please call us on +91 70751 57013 instead.`}
+      </p>
+      {action && <p className="mt-2">{action}</p>}
+    </div>
   );
 }

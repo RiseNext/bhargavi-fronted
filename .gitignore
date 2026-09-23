@@ -32,6 +32,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...but the template must be committed so Vercel setup is documented.
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +41,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# responsive audit output
+/.audit
+
+# The client's original site, extracted from their ZIP. 44MB of reference
+# material that nothing imports — keep it locally, out of the repo and out of
+# every Vercel upload. Delete this line if you want it versioned.
+/reference/
+

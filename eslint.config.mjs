@@ -18,6 +18,9 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      // The client's old website, kept verbatim for reference only.
+      "reference/**",
+      ".audit/**",
     ],
   },
 ];

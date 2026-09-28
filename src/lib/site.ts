@@ -61,10 +61,7 @@ export const site = {
 
   socials: [
     { name: "Facebook", href: "https://www.facebook.com/Bhargavihealthworld" },
-    { name: "Instagram", href: "https://www.instagram.com/bhargavi_health_world/" },
-    { name: "X", href: "https://x.com/BhargaviHealth" },
-    { name: "LinkedIn", href: "https://www.linkedin.com/in/bhargavi-health-world/" },
-    { name: "Pinterest", href: "https://www.pinterest.com/bhargavihealthhyd/" },
+    { name: "Instagram", href: "https://www.instagram.com/bhargavihealthworld/" },
     { name: "YouTube", href: "https://www.youtube.com/@bhargavihealthworld8686" },
   ],
 

@@ -302,8 +302,6 @@ export function ProcessSteps() {
    ================================================================ */
 
 export function Testimonials() {
-  const [feature, ...rest] = featuredTestimonials;
-
   return (
     <Section tone="ivory" className="overflow-clip">
       <Wrap>
@@ -319,10 +317,9 @@ export function Testimonials() {
 
       </Wrap>
 
-      {/* Cards first, feature quote below — swapped with the photo block. */}
       <div className="rail mt-block pb-6 pt-2">
         <ul className="rail-pad flex w-max gap-gutter">
-          {rest.map((t, i) => (
+          {featuredTestimonials.map((t, i) => (
             <li key={t.name} className="w-[min(24rem,78vw)]">
               <Reveal delay={i * 60} className="h-full">
                 <TestimonialCard testimonial={t} clamp className="h-full" />
@@ -331,35 +328,6 @@ export function Testimonials() {
           ))}
         </ul>
       </div>
-
-      <Wrap>
-        <div className="mt-block grid gap-block lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-center">
-          <Reveal>
-            <figure>
-              <Seed className="text-[1.5rem] text-olive" />
-              <blockquote className="mt-stack font-display text-[clamp(1.375rem,1.05rem+1.7vw,2.25rem)] leading-[1.22] text-ink">
-                “{feature.quote}”
-              </blockquote>
-              <figcaption className="mt-block flex items-center gap-3 text-small">
-                <span className="h-px w-8 bg-terracotta" aria-hidden="true" />
-                <span className="text-ink">{feature.name}</span>
-                {feature.when && <span className="text-faint">· {feature.when}</span>}
-              </figcaption>
-            </figure>
-          </Reveal>
-
-          <Reveal delay={140} className="group">
-            <Frame
-              src="/images/gallery/i-img-6.jpg"
-              alt="Treatment in progress at Bhargavi Health World"
-              radius="xl"
-              zoom
-              sizes="(min-width: 1024px) 42vw, 92vw"
-              className="aspect-4/3 w-full"
-            />
-          </Reveal>
-        </div>
-      </Wrap>
     </Section>
   );
 }

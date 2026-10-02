@@ -11,8 +11,7 @@ import { cn } from "@/lib/cn";
  * Mirrors `site.hours`. Keep the two in step if the hours ever change.
  */
 const WINDOWS = [
-  { from: 10 * 60, to: 13 * 60 + 30, opens: "10:00 AM", closes: "1:30 PM" },
-  { from: 16 * 60, to: 19 * 60 + 30, opens: "4:00 PM", closes: "7:30 PM" },
+  { from: 9 * 60, to: 21 * 60, opens: "9:00 AM", closes: "9:00 PM" },
 ];
 
 type State = { open: boolean; detail: string };
@@ -20,23 +19,17 @@ type State = { open: boolean; detail: string };
 function clinicNow() {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Asia/Kolkata",
-    weekday: "short",
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
   }).formatToParts(new Date());
 
   const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
-  return {
-    weekday: get("weekday"),
-    minutes: Number(get("hour")) * 60 + Number(get("minute")),
-  };
+  return { minutes: Number(get("hour")) * 60 + Number(get("minute")) };
 }
 
 function evaluate(): State {
-  const { weekday, minutes } = clinicNow();
-
-  if (weekday === "Sun") return { open: false, detail: "Opens Monday, 10:00 AM" };
+  const { minutes } = clinicNow();
 
   const current = WINDOWS.find((w) => minutes >= w.from && minutes < w.to);
   if (current) return { open: true, detail: `Open until ${current.closes}` };
@@ -44,12 +37,7 @@ function evaluate(): State {
   const next = WINDOWS.find((w) => minutes < w.from);
   if (next) return { open: false, detail: `Opens at ${next.opens}` };
 
-  // Past the evening window: Saturday rolls over the closed Sunday.
-  return {
-    open: false,
-    detail:
-      weekday === "Sat" ? "Opens Monday, 10:00 AM" : "Opens tomorrow, 10:00 AM",
-  };
+  return { open: false, detail: "Opens tomorrow, 9:00 AM" };
 }
 
 export function OpenStatus({ className }: { className?: string }) {

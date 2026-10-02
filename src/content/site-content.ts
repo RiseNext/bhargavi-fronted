@@ -98,7 +98,7 @@ export const faqs: Faq[] = [
   {
     question: "What are your timings?",
     answer:
-      "Monday to Saturday, 10:00 AM – 1:30 PM and 4:00 PM – 7:30 PM. The clinic is closed on Sundays.",
+      "Every day, Monday to Sunday, 9:00 AM – 9:00 PM.",
   },
   {
     question: "Can these therapies be taken alongside my existing medication?",

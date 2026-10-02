@@ -60,7 +60,7 @@ export default function AboutPage() {
             Bhargavi
           </>
         }
-        lead={`${site.founder.qualifications} · ${site.founder.role}`}
+        lead={site.founder.role}
       />
 
       {/* Story */}
@@ -80,20 +80,6 @@ export default function AboutPage() {
               />
             </Reveal>
 
-            <Reveal delay={120}>
-              <dl className="mt-gutter grid gap-4 rounded-lg border border-line p-[clamp(1.1rem,0.9rem+1vw,1.75rem)] sm:grid-cols-2 lg:grid-cols-1">
-                <div>
-                  <dt className="label text-terracotta">Qualifications</dt>
-                  <dd className="mt-2 font-display text-h4 text-ink">
-                    {site.founder.qualifications}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="label text-terracotta">Practising since</dt>
-                  <dd className="mt-2 font-display text-h4 text-ink">2017</dd>
-                </div>
-              </dl>
-            </Reveal>
           </div>
 
           <div>

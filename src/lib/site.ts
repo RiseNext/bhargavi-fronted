@@ -23,13 +23,12 @@ export const site = {
     // CONFIRM: old site mixes "Mrs." and "Dr." — qualifications list no medical degree.
     honorific: "Mrs.",
     qualifications: "BA, B.Ed, MA, Diploma in Acupuncture",
-    role: "Founder & Senior Acupuncture Therapist",
+    role: "Founder Acupuncture",
     photo: "/images/team/anjana-bhargavi.jpg",
   },
 
   phones: [
     { label: "+91 70751 57013", href: "tel:+917075157013" },
-    { label: "+91 89199 65333", href: "tel:+918919965333" },
   ],
   whatsapp: {
     number: "+917075157013",
@@ -54,9 +53,7 @@ export const site = {
   priceRange: "₹100–1000",
 
   hours: [
-    { days: "Monday – Saturday", time: "10:00 AM – 1:30 PM" },
-    { days: "Monday – Saturday", time: "4:00 PM – 7:30 PM" },
-    { days: "Sunday", time: "Closed" },
+    { days: "Monday – Sunday", time: "9:00 AM – 9:00 PM" },
   ],
 
   socials: [

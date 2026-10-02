@@ -186,7 +186,7 @@ export default async function ServiceDetailPage({ params }: Params) {
                   </a>
                 ))}
                 <p className="mt-stack text-small text-muted">
-                  Mon–Sat · 10:00 AM – 1:30 PM and 4:00 PM – 7:30 PM
+                  Mon–Sun · 9:00 AM – 9:00 PM
                 </p>
                 {/* Carries the therapy name, so the clinic sees what the
                     enquiry is about before reading a word. */}

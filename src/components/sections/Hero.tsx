@@ -102,9 +102,6 @@ export function Hero() {
             </span>{" "}
             — treating the whole person, not just the symptom.
           </p>
-          <p className="mt-stack text-small text-muted">
-            {site.founder.qualifications} · Practising since 2017
-          </p>
         </Reveal>
 
         {/* Wide treatment image */}

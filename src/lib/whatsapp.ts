@@ -1,8 +1,5 @@
 import { site } from "./site";
 
-/** wa.me wants bare digits — no +, spaces or dashes. */
-const NUMBER = site.whatsapp.number.replace(/\D/g, "");
-
 type Row = { label: string; value?: string | null };
 
 /**
@@ -12,8 +9,15 @@ type Row = { label: string; value?: string | null };
  * message composed and they press send. That is what makes it reliable with
  * no mail server — the request arrives from their real number, so the clinic
  * can reply straight back in the same thread.
+ *
+ * `phone` picks which clinic number receives it (defaults to the main
+ * WhatsApp line) — the appointment form passes the chosen branch's number.
  */
-export function whatsappUrl(heading: string, rows: Row[] = []) {
+export function whatsappUrl(
+  heading: string,
+  rows: Row[] = [],
+  phone: string = site.whatsapp.number,
+) {
   const body = rows
     .filter((r) => r.value != null && String(r.value).trim() !== "")
     .map((r) => `*${r.label}:* ${String(r.value).trim()}`);
@@ -23,7 +27,8 @@ export function whatsappUrl(heading: string, rows: Row[] = []) {
     ? [`*${heading}*`, "", ...body].join("\n")
     : `*${heading}*`;
 
-  return `https://wa.me/${NUMBER}?text=${encodeURIComponent(text)}`;
+  // wa.me wants bare digits — no +, spaces or dashes.
+  return `https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent(text)}`;
 }
 
 /** `datetime-local` gives "2026-09-25T15:30" — unreadable in a message. */

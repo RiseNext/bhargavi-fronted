@@ -62,7 +62,8 @@ const businessSchema = {
   name: site.name,
   description: site.description,
   url: site.url,
-  telephone: site.phones[0].label,
+  // The schema's address is the Chikkadpally clinic, so pair its number.
+  telephone: site.branches[0].phone,
   email: site.email,
   priceRange: site.priceRange,
   image: `${site.url}${site.founder.photo}`,

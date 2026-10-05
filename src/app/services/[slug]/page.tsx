@@ -182,6 +182,9 @@ export default async function ServiceDetailPage({ params }: Params) {
                     href={p.href}
                     className="mt-2 block font-display text-h3 tabular-nums text-ink transition-colors hover:text-terracotta"
                   >
+                    <span className="block text-label uppercase tracking-[0.12em] text-muted">
+                      {p.branch}
+                    </span>
                     {p.label}
                   </a>
                 ))}

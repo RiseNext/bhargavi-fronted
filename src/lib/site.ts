@@ -28,7 +28,16 @@ export const site = {
   },
 
   phones: [
-    { label: "+91 70751 57013", href: "tel:+917075157013" },
+    { label: "+91 70751 57013", href: "tel:+917075157013", branch: "Bowenpally" },
+    { label: "+91 98663 76203", href: "tel:+919866376203", branch: "Chikkadpally" },
+  ],
+  /**
+   * The two clinic locations. The appointment form asks which branch the
+   * visitor wants before handing the request over to that branch's WhatsApp.
+   */
+  branches: [
+    { name: "Chikkadpally", phone: "+91 98663 76203", whatsapp: "+919866376203" },
+    { name: "Bowenpally", phone: "+91 70751 57013", whatsapp: "+917075157013" },
   ],
   whatsapp: {
     number: "+917075157013",

@@ -96,19 +96,17 @@ export function Footer() {
               <address className="mt-3 not-italic text-small leading-relaxed text-ivory/60">
                 {site.address.line1}, {site.address.city} –{" "}
                 {site.address.postalCode}
-                <span className="mt-1.5 block">
-                  {site.phones.map((p, i) => (
-                    <span key={p.href}>
-                      {i > 0 && <span aria-hidden="true"> · </span>}
-                      <a
-                        href={p.href}
-                        className="tabular-nums text-ivory/75 transition-colors hover:text-ivory"
-                      >
-                        {p.label}
-                      </a>
-                    </span>
-                  ))}
-                </span>
+                {site.phones.map((p) => (
+                  <span key={p.href} className="mt-1.5 block">
+                    <span className="text-ivory/45">{p.branch} · </span>
+                    <a
+                      href={p.href}
+                      className="tabular-nums text-ivory/75 transition-colors hover:text-ivory"
+                    >
+                      {p.label}
+                    </a>
+                  </span>
+                ))}
                 <a
                   href={`mailto:${site.email}`}
                   className="mt-1 block break-all text-ivory/75 transition-colors hover:text-ivory"

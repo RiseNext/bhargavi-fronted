@@ -472,7 +472,7 @@ export function Header() {
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-small text-muted">
               {site.phones.map((p) => (
                 <a key={p.href} href={p.href} className="tabular-nums underline-grow">
-                  {p.label}
+                  {p.branch} · {p.label}
                 </a>
               ))}
             </div>

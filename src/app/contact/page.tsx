@@ -30,7 +30,7 @@ const cards: {
   {
     label: "Call",
     icon: "phone",
-    lines: site.phones.map((p) => p.label),
+    lines: site.phones.map((p) => `${p.branch} · ${p.label}`),
     href: site.phones[0].href,
     cta: "Tap to call",
   },

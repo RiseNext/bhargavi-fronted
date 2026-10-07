@@ -28,6 +28,7 @@ const explore = [
   { label: "Health Talks", href: "/videos" },
   { label: "Testimonials", href: "/testimonials" },
   { label: "Blog", href: "/blog" },
+  { label: "Careers", href: "/careers" },
   { label: "Contact", href: "/contact" },
 ];
 

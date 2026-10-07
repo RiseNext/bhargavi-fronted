@@ -99,13 +99,13 @@ export function JobOpenings() {
           role="dialog"
           aria-modal="true"
           aria-label={`Apply — ${active.title}`}
-          className="fixed inset-0 z-[90] flex items-end justify-center bg-walnut-deep/70 sm:items-center sm:p-gutter"
+          className="modal-backdrop fixed inset-0 z-[90] flex items-end justify-center bg-walnut-deep/70 sm:items-center sm:p-gutter"
           onClick={close}
         >
           {/* Bottom sheet on phones, centered dialog from sm up. The header
               stays fixed so Close is always reachable while the form scrolls. */}
           <div
-            className="flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-xl bg-paper sm:max-h-[88vh] sm:rounded-xl"
+            className="modal-panel flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-xl bg-paper sm:max-h-[88vh] sm:rounded-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4 border-b border-line p-[clamp(1.1rem,0.9rem+1vw,2rem)]">

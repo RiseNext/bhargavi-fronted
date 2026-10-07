@@ -389,9 +389,11 @@ export function Header() {
           role="dialog"
           aria-modal="true"
           aria-label="Site menu"
+          /* Bottom sheet, same motion as the apply modal: slides up from
+             the bottom edge with a rounded top. */
           className={cn(
-            "absolute inset-y-0 right-0 flex w-[min(30rem,100%)] flex-col bg-ivory transition-transform duration-500 ease-[cubic-bezier(.22,1,.36,1)]",
-            menuOpen ? "translate-x-0" : "translate-x-full",
+            "absolute inset-x-0 bottom-0 flex max-h-[92dvh] flex-col rounded-t-xl bg-ivory transition-transform duration-500 ease-[cubic-bezier(.22,1,.36,1)]",
+            menuOpen ? "translate-y-0" : "translate-y-full",
           )}
         >
           <div className="flex shrink-0 items-center justify-between gap-4 px-gutter py-[clamp(0.85rem,0.6rem+0.9vw,1.4rem)]">
@@ -422,13 +424,18 @@ export function Header() {
           >
             <ul className="divide-y divide-line">
               {nav.map((item, i) => {
-                const children =
-                  item.label === "Services" ? servicesMenu : item.children;
+                /* Top-level links only — the Services and Media sub-lists
+                   would swamp a phone screen; they live on their own pages. */
                 return (
                   <li
                     key={item.label}
-                    className="py-1"
-                    style={{ transitionDelay: `${menuOpen ? i * 40 : 0}ms` }}
+                    className={cn(
+                      "py-1 transition-[opacity,transform] duration-500 ease-[cubic-bezier(.22,1,.36,1)]",
+                      menuOpen
+                        ? "translate-y-0 opacity-100"
+                        : "translate-y-4 opacity-0",
+                    )}
+                    style={{ transitionDelay: `${menuOpen ? 80 + i * 50 : 0}ms` }}
                   >
                     <Link
                       href={item.href}
@@ -442,27 +449,19 @@ export function Header() {
                       </span>
                       {item.label}
                     </Link>
-                    {children && (
-                      <ul className="flex flex-wrap gap-x-4 gap-y-1 pb-4 pl-[2.2rem]">
-                        {children.map((child) => (
-                          <li key={child.href}>
-                            <Link
-                              href={child.href}
-                              className="text-small text-muted underline-grow"
-                            >
-                              {child.label}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
                   </li>
                 );
               })}
             </ul>
           </nav>
 
-          <div className="shrink-0 space-y-3 border-t border-line px-gutter py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+          <div
+            className={cn(
+              "shrink-0 space-y-3 border-t border-line px-gutter py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] transition-opacity duration-500",
+              menuOpen ? "opacity-100" : "opacity-0",
+            )}
+            style={{ transitionDelay: menuOpen ? "350ms" : "0ms" }}
+          >
             <Link
               href="/contact"
               className="flex w-full items-center justify-center gap-2 rounded-full bg-walnut px-6 py-4 text-small font-semibold text-ivory"

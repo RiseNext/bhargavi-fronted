@@ -360,6 +360,61 @@
 }
 
 /* ============================================================
+   Apply modal — backdrop fades; the panel slides up from the
+   bottom edge on phones (bottom sheet) and eases in from sm up
+   ============================================================ */
+
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheet-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes modal-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.modal-backdrop {
+  animation: modal-fade-in 0.3s ease-out both;
+}
+
+.modal-panel {
+  animation: sheet-slide-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (min-width: 40rem) {
+  .modal-panel {
+    animation: modal-pop-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop,
+  .modal-panel {
+    animation: none;
+  }
+}
+
+/* ============================================================
    Marquee
    ============================================================ */
 

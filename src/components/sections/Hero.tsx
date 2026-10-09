@@ -4,6 +4,7 @@ import { Arc, Seed } from "@/components/ui/Decor";
 import { Reveal, Wipe } from "@/components/ui/Reveal";
 import { site } from "@/lib/site";
 import { services } from "@/content/services";
+import { stats } from "@/content/site-content";
 import * as copy from "@/lib/copy";
 
 /**
@@ -20,11 +21,27 @@ const wideImage = copy.item("home", "hero", "images", 0);
 const heroCta = copy.action("home", "hero");
 const heroCta2 = copy.action("home", "hero", "cta2");
 
-const heroStats = [
-  { k: "8+", v: "Years practising" },
-  { k: "3000+", v: "Patients treated" },
-  { k: "10", v: "Therapies" },
-];
+/**
+ * The hero's three statistics, from the admin-managed `stats` rows.
+ *
+ * 🔴 This was a hardcoded array — `8+ Years practising`, `3000+ Patients
+ * treated`, `10 Therapies` — while the statistics band on the same page read
+ * the database. That divergence is the whole reason D-023 exists: the hero
+ * shows the SAME statistics with DIFFERENT wording ("Years practising" against
+ * the band's "Years of expertise"), so `stats.hero_label` was added and the
+ * generator emits `heroLabel` and `showInHero`. Both fields were being emitted
+ * and neither was ever read, so an owner editing a statistic changed the band
+ * and never the hero.
+ *
+ * ⚠ `heroLabel ?? label` is D-023's resolution rule, and `showInHero` selects
+ * exactly the three rows the hero has always shown — "Acupuncture cases" is
+ * the one excluded. The rendered output is byte-identical to the array it
+ * replaces, which is what D-010 requires: the data source changes, the website
+ * does not.
+ */
+const heroStats = stats
+  .filter((s) => s.showInHero)
+  .map((s) => ({ k: `${String(s.value)}${s.suffix}`, v: s.heroLabel ?? s.label }));
 
 export function Hero() {
   return (

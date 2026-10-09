@@ -16,25 +16,21 @@ import {
 import { site } from "@/lib/site";
 import * as copy from "@/lib/copy";
 import { absoluteUrl, serialiseJsonLd } from "@/lib/schema";
-import { aboutStory, achievements } from "@/content/site-content";
+import { aboutStory, achievements, philosophy } from "@/content/site-content";
 import { galleryImages } from "@/content/media";
 
 export const metadata: Metadata = metadataFor("about");
 
-const philosophy = [
-  {
-    title: "Treat the cause",
-    text: "Pain is a message, not the problem. We look at posture, diet, sleep and stress before we reach for a needle.",
-  },
-  {
-    title: "Complement, never replace",
-    text: "These therapies work alongside your existing medical care. Bring your prescriptions — we build the plan around them.",
-  },
-  {
-    title: "Teach you to self-care",
-    text: "Every patient leaves knowing which points to press, what to eat, and what to do between sittings.",
-  },
-];
+/* `philosophy` now comes from the generated content module — see the import.
+ *
+ * 🔴 It was a hardcoded array here, and the array was BYTE-IDENTICAL to the
+ * generated one, which is exactly why nobody noticed. The generator emits
+ * `philosophy` from the `philosophy` content-list collection, the admin panel
+ * edits those rows, and this page read its own copy instead — so editing a
+ * philosophy item would have changed the database, changed the generated file,
+ * and left this page showing the original text for ever. A duplicate that
+ * currently agrees is indistinguishable from a working wire-up until the first
+ * edit, and the first edit is the worst moment to find out. */
 
 const personSchema = {
   "@context": "https://schema.org",

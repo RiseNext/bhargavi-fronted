@@ -1,4 +1,12 @@
-/** Health Talks videos + clinic gallery (docs/textprd.md §8, §9). */
+/**
+ * ⚠ GENERATED FILE — DO NOT EDIT BY HAND.
+ *
+ * Produced by `scripts/generate-content.mjs` from GET /api/videos and GET /api/gallery.
+ * Run `npm run generate:content` to refresh; the result is committed so a
+ * build never depends on the API being reachable (D-016).
+ *
+ * Hand edits are lost on the next build. Change the content in the admin panel.
+ */
 
 export type Video = {
   id: string;
@@ -12,9 +20,19 @@ export const videos: Video[] = [
     id: "6STwtkvRBIA",
     title: "Stop Nausea & Dizziness Naturally — a simple acupressure tip",
   },
-  { id: "UsKRCXN-jo0", title: "Tired of Skipping Breakfast? Try this fruit bowl plan" },
-  { id: "SP6KeFkfFEc", title: "A simple fruit bowl plan for busy mornings" },
-  { id: "xj_5hVlamRQ", title: "Brain development & brain games", featured: true },
+  {
+    id: "UsKRCXN-jo0",
+    title: "Tired of Skipping Breakfast? Try this fruit bowl plan",
+  },
+  {
+    id: "SP6KeFkfFEc",
+    title: "A simple fruit bowl plan for busy mornings",
+  },
+  {
+    id: "xj_5hVlamRQ",
+    title: "Brain development & brain games",
+    featured: true,
+  },
   {
     id: "kOEFJyDlzks",
     title: "హాయిగా నిద్ర పోవాలంటే..",
@@ -90,9 +108,13 @@ export const videos: Video[] = [
     title: "ఎమర్జెన్సీ సమయంలో బాడీలో ఆక్సిజన్ లెవెల్ పెంచుకోవడం ఎలా?",
     translation: "Raise oxygen levels in an emergency",
   },
-  { id: "cdTut-hzBu4", title: "Bhargavi Health World — trailer" },
+  {
+    id: "cdTut-hzBu4",
+    title: "Bhargavi Health World — trailer",
+  },
 ];
 
+/** Derived helpers — code-owned (R-g). Thumb and embed URLs are never stored. */
 export const featuredVideos = videos.filter((v) => v.featured);
 
 export const youtubeThumb = (id: string) =>
@@ -101,7 +123,37 @@ export const youtubeThumb = (id: string) =>
 export const youtubeWatch = (id: string) =>
   `https://www.youtube.com/watch?v=${id}`;
 
-export const galleryImages = Array.from({ length: 8 }, (_, i) => ({
-  src: `/images/gallery/i-img-${i + 1}.jpg`,
-  alt: `Inside Bhargavi Health World, Chikkadpally — clinic photo ${i + 1}`,
-}));
+export const galleryImages = [
+  {
+    src: "https://res.cloudinary.com/iojros3g/image/upload/v1791475648/bhw/dev/gallery/i-img-1.jpg",
+    alt: "Inside Bhargavi Health World, Chikkadpally — clinic photo 1",
+  },
+  {
+    src: "https://res.cloudinary.com/iojros3g/image/upload/v1791475649/bhw/dev/gallery/i-img-2.jpg",
+    alt: "Inside Bhargavi Health World, Chikkadpally — clinic photo 2",
+  },
+  {
+    src: "https://res.cloudinary.com/iojros3g/image/upload/v1791475650/bhw/dev/gallery/i-img-3.jpg",
+    alt: "Inside Bhargavi Health World, Chikkadpally — clinic photo 3",
+  },
+  {
+    src: "https://res.cloudinary.com/iojros3g/image/upload/v1791475651/bhw/dev/gallery/i-img-4.jpg",
+    alt: "Inside Bhargavi Health World, Chikkadpally — clinic photo 4",
+  },
+  {
+    src: "https://res.cloudinary.com/iojros3g/image/upload/v1791475652/bhw/dev/gallery/i-img-5.jpg",
+    alt: "Inside Bhargavi Health World, Chikkadpally — clinic photo 5",
+  },
+  {
+    src: "https://res.cloudinary.com/iojros3g/image/upload/v1791475653/bhw/dev/gallery/i-img-6.jpg",
+    alt: "Inside Bhargavi Health World, Chikkadpally — clinic photo 6",
+  },
+  {
+    src: "https://res.cloudinary.com/iojros3g/image/upload/v1791475654/bhw/dev/gallery/i-img-7.jpg",
+    alt: "Inside Bhargavi Health World, Chikkadpally — clinic photo 7",
+  },
+  {
+    src: "https://res.cloudinary.com/iojros3g/image/upload/v1791475656/bhw/dev/gallery/i-img-8.jpg",
+    alt: "Inside Bhargavi Health World, Chikkadpally — clinic photo 8",
+  },
+];

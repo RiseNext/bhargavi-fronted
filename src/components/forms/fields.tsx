@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 import { cn } from "@/lib/cn";
+import { site } from "@/lib/site";
 
 /** Underlined inputs — lighter than boxes, and they scale with the type. */
 const control =
@@ -125,6 +126,85 @@ export function Select({
   );
 }
 
+/**
+ * Spam honeypot — F-1, and the permitted change to the two gesture-sensitive
+ * forms under D-030.
+ *
+ * A real visitor never sees or fills this; many bots fill every field they find.
+ * The backend records a filled value and still returns success, because telling
+ * a bot it was detected only helps it tune.
+ *
+ * Hidden with `position:absolute` and `left:-9999px` rather than
+ * `display:none` or `type="hidden"`: a field that is not rendered at all is
+ * trivially skipped, whereas this one looks real to a form parser. `tabIndex`
+ * and `aria-hidden` keep it away from keyboard and screen-reader users, and
+ * `autoComplete="off"` stops a browser helpfully filling it in.
+ *
+ * It adds no layout: absolutely positioned out of flow, zero height.
+ *
+ * 🔴 The `id` comes from `useId()`, not a literal. `/contact` renders TWO forms
+ * on one page, so a hardcoded id appeared twice — an invalid duplicate, and the
+ * `<label for>` then bound only to the first input. The `name` stays the literal
+ * `"company"`: that one IS the contract with the backend's `HONEYPOT_FIELD`.
+ */
+/**
+ * A file input, for the careers resume upload (D-008).
+ *
+ * Styled from the same `control` string every other field uses, so it sits on
+ * the same underlined baseline rather than introducing a second input idiom.
+ * The accepted types are stated in the hint because a rejection after choosing
+ * a file is a worse experience than being told first.
+ */
+export function FileField({
+  label,
+  name,
+  required,
+  className,
+  hint,
+  accept,
+  onFileChange,
+}: Base & { accept: string; onFileChange?: (file: File | undefined) => void }) {
+  const id = useId();
+  return (
+    <div className={cn("min-w-0", className)}>
+      <Label htmlFor={id} required={required}>
+        {label}
+      </Label>
+      <input
+        id={id}
+        name={name}
+        type="file"
+        accept={accept}
+        required={required}
+        onChange={(e) => onFileChange?.(e.target.files?.[0])}
+        className={cn(
+          control,
+          "cursor-pointer file:mr-3 file:cursor-pointer file:rounded-none file:border-0",
+          "file:bg-transparent file:p-0 file:text-small file:text-terracotta",
+        )}
+      />
+      {hint !== undefined && <p className="mt-2 text-small text-faint">{hint}</p>}
+    </div>
+  );
+}
+
+export function Honeypot() {
+  const id = useId();
+  return (
+    <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+      <label htmlFor={id}>Company</label>
+      <input
+        id={id}
+        name="company"
+        type="text"
+        tabIndex={-1}
+        autoComplete="off"
+        defaultValue=""
+      />
+    </div>
+  );
+}
+
 function Label({
   htmlFor,
   required,
@@ -144,6 +224,28 @@ function Label({
       )}
     </label>
   );
+}
+
+/**
+ * The "something went wrong" line, with the clinic's number read from the
+ * generated site data.
+ *
+ * 🔴 It used to be a literal here, duplicating `site.phones[0]`. This is the
+ * one message a visitor sees when their enquiry did NOT go through, so a number
+ * that silently went stale after an admin edit would strand exactly the person
+ * who most needs to reach the clinic.
+ *
+ * `phones[0]` is deliberate: D-013 makes it the clinic's first-listed number
+ * (currently Bowenpally), which is the same number this line always showed.
+ *
+ * If no number is available the sentence simply omits it rather than falling
+ * back to a hardcoded one — a wrong number is worse than no number.
+ */
+function failureText(): string {
+  const phone = site.phones[0]?.label;
+  return phone
+    ? `Something went wrong. Please call us on ${phone} instead.`
+    : "Something went wrong. Please call us instead.";
 }
 
 export function FormStatus({
@@ -169,9 +271,7 @@ export function FormStatus({
       )}
     >
       <p>
-        {state === "sent"
-          ? successText
-          : `Something went wrong. Please call us on +91 70751 57013 instead.`}
+        {state === "sent" ? successText : failureText()}
       </p>
       {action && <p className="mt-2">{action}</p>}
     </div>

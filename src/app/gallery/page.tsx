@@ -1,17 +1,14 @@
 import type { Metadata } from "next";
+import { metadataFor } from "@/lib/page-metadata";
 
 import { PageHero } from "@/components/ui/PageHero";
 import { Section, Wrap } from "@/components/ui/Section";
 import { GalleryLightbox } from "@/components/ui/Lightbox";
 import { CtaBand } from "@/components/sections/HomeSections";
 import { galleryImages } from "@/content/media";
+import * as copy from "@/lib/copy";
 
-export const metadata: Metadata = {
-  title: "Clinic Gallery",
-  description:
-    "Explore images of holistic acupuncture and acupressure therapy at Bhargavi Health World, Chikkadpally, Hyderabad. See how our treatments enhance wellness and relieve pain naturally.",
-  alternates: { canonical: "/gallery" },
-};
+export const metadata: Metadata = metadataFor("gallery");
 
 export default function GalleryPage() {
   return (
@@ -22,13 +19,9 @@ export default function GalleryPage() {
           { label: "Media", href: "/gallery" },
           { label: "Clinic Gallery" },
         ]}
-        label="Inside the clinic"
-        title={
-          <>
-            A look <span className="italic">around</span> the clinic
-          </>
-        }
-        lead="Treatment rooms, therapy charts and the everyday work of natural healing in Chikkadpally."
+        label={copy.text("gallery", "hero", "label")}
+        title={copy.heading("gallery", "hero")}
+        lead={copy.text("gallery", "hero", "lead")}
       />
 
       <Section tone="ivory">

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { site } from "@/lib/site";
+import { breadcrumbList, serialiseJsonLd } from "@/lib/schema";
 import { Arc } from "./Decor";
 import { Reveal, Wipe } from "./Reveal";
 
@@ -24,6 +26,32 @@ export function PageHero({
    */
   compact?: boolean;
 }) {
+  /*
+   * `BreadcrumbList` JSON-LD — E18 / S-3.
+   *
+   * 🔴 Emitted HERE rather than from each page, because this component already
+   * receives the exact trail it renders. Any per-page copy would be a second
+   * source of truth for the same names, and the two would drift — the markup
+   * would then describe a hierarchy the visitor cannot see, which is precisely
+   * what structured-data penalties are for.
+   *
+   * Consequences that fall out of this placement, all of them wanted:
+   *   · it appears only on pages that actually have breadcrumbs, because only
+   *     those pages render a PageHero;
+   *   · the names are the rendered names, by construction;
+   *   · there is exactly one BreadcrumbList per page, so nothing conflicts.
+   *
+   * `breadcrumbList` returns undefined for a trail shorter than two crumbs, so
+   * a lone "Home" emits nothing. URLs resolve against `site.url`, which is
+   * `NEXT_PUBLIC_SITE_URL` when set.
+   *
+   * Adds no visible output and no layout (D-010).
+   */
+  const crumbSchema = breadcrumbList(
+    site.url,
+    breadcrumb.map((crumb) => ({ name: crumb.label, href: crumb.href })),
+  );
+
   return (
     <section
       className={cn(
@@ -31,6 +59,13 @@ export function PageHero({
         compact ? "pb-stack" : "pb-block",
       )}
     >
+      {crumbSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serialiseJsonLd(crumbSchema) }}
+        />
+      )}
+
       <Arc className="absolute -right-[14%] -top-[18%] w-[min(38rem,66vw)] text-line" />
 
       <div className="wrap">

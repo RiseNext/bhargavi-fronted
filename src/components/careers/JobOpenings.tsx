@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { CareerForm } from "@/components/forms/CareerForm";
 import { jobs, type Job } from "@/content/careers";
+import * as copy from "@/lib/copy";
 
 /**
  * Job cards on white, each opening an application modal with that role
@@ -53,13 +54,15 @@ export function JobOpenings() {
                   className="w-full shrink-0 sm:w-auto"
                   onClick={() => setActive(job)}
                 >
-                  Apply for this role
+                  {copy.extra("careers", "jobCards", "applyButton")}
                 </Button>
               </div>
 
               <div className="mt-stack grid grow gap-stack border-t border-walnut/60 pt-stack sm:grid-cols-2">
                 <div>
-                  <p className="label font-semibold text-ink-2">Responsibilities</p>
+                  <p className="label font-semibold text-ink-2">
+                    {copy.extra("careers", "jobCards", "responsibilitiesHeading")}
+                  </p>
                   <ul className="mt-3 space-y-2">
                     {job.responsibilities.map((item) => (
                       <li key={item} className="flex gap-2.5 text-small text-muted">
@@ -74,7 +77,7 @@ export function JobOpenings() {
                 </div>
                 <div>
                   <p className="label font-semibold text-ink-2">
-                    What you&apos;ll need
+                    {copy.extra("careers", "jobCards", "requirementsHeading")}
                   </p>
                   <ul className="mt-3 space-y-2">
                     {job.requirements.map((item) => (
@@ -110,7 +113,9 @@ export function JobOpenings() {
           >
             <div className="flex items-start justify-between gap-4 border-b border-line p-[clamp(1.1rem,0.9rem+1vw,2rem)]">
               <div className="min-w-0">
-                <p className="label text-terracotta">Apply</p>
+                <p className="label text-terracotta">
+                  {copy.extra("careers", "jobCards", "modalLabel")}
+                </p>
                 <h3 className="mt-1.5 font-display text-h4 text-ink sm:text-h3">
                   {active.title}
                 </h3>
@@ -123,7 +128,9 @@ export function JobOpenings() {
                 onClick={close}
                 className="grid aspect-square w-10 shrink-0 place-items-center rounded-full border border-line text-ink transition-colors hover:bg-walnut hover:text-ivory"
               >
-                <span className="sr-only">Close</span>
+                <span className="sr-only">
+                  {copy.extra("careers", "jobCards", "modalCloseLabel")}
+                </span>
                 <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                   <path
                     d="M1 1l12 12M13 1L1 13"

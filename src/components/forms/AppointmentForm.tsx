@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Field, FormStatus, Select, TextArea } from "./fields";
+import { Field, FormStatus, Honeypot, Select, TextArea } from "./fields";
 import { services } from "@/content/services";
 import { site } from "@/lib/site";
 import { formatDateTime, whatsappUrl } from "@/lib/whatsapp";
@@ -82,6 +82,8 @@ export function AppointmentForm({
 
   return (
     <form ref={formRef} onSubmit={onSubmit} className="space-y-stack">
+      {/* F-1 spam honeypot. Invisible to visitors; adds no layout. */}
+      <Honeypot />
       <div
         className={compact ? "space-y-stack" : "grid gap-stack sm:grid-cols-2"}
       >

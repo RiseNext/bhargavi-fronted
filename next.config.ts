@@ -21,6 +21,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       // YouTube thumbnails for the Health Talks pages.
       { protocol: "https", hostname: "i.ytimg.com", pathname: "/vi/**" },
+      // 🔴 E6 — uploaded media. Every image managed through the admin panel is
+      // served from here, so without this entry `next/image` throws at build
+      // time and the whole media pipeline is unusable. This one line gates
+      // every later media step.
+      { protocol: "https", hostname: "res.cloudinary.com", pathname: "/**" },
     ],
   },
 

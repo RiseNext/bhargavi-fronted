@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { metadataFor } from "@/lib/page-metadata";
+import * as copy from "@/lib/copy";
 
 import { PageHero } from "@/components/ui/PageHero";
 import { Section, SectionHead, Wrap } from "@/components/ui/Section";
@@ -9,12 +11,7 @@ import { CtaBand, ProcessSteps } from "@/components/sections/HomeSections";
 import { services } from "@/content/services";
 import { faqs } from "@/content/site-content";
 
-export const metadata: Metadata = {
-  title: "Services",
-  description:
-    "Bhargavi Health World in Chikkadpally offers expert holistic care through acupuncture, acupressure, physiotherapy, and more. Restore your health naturally in the heart of Hyderabad.",
-  alternates: { canonical: "/services" },
-};
+export const metadata: Metadata = metadataFor("services");
 
 export default function ServicesPage() {
   return (
@@ -24,12 +21,7 @@ export default function ServicesPage() {
       <PageHero
         compact
         breadcrumb={[{ label: "Home", href: "/" }, { label: "Services" }]}
-        title={
-          <>
-            Ten therapies, one <span className="italic">whole-person</span>{" "}
-            approach
-          </>
-        }
+        title={copy.heading("services", "hero")}
       />
 
       <Section tone="ivory">
@@ -51,9 +43,9 @@ export default function ServicesPage() {
           <div className="lg:sticky lg:top-nav lg:self-start">
             <SectionHead
               align="left"
-              label="Before you book"
-              title="Common questions"
-              lead="Still unsure which therapy fits? Call us and we'll tell you honestly — including when we are not the right option."
+              label={copy.text("services", "faqSection", "label")}
+              title={copy.text("services", "faqSection", "title")}
+              lead={copy.text("services", "faqSection", "lead")}
             />
           </div>
           <Reveal delay={90}>

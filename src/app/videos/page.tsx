@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { metadataFor } from "@/lib/page-metadata";
 
 import { PageHero } from "@/components/ui/PageHero";
 import { Section, Wrap } from "@/components/ui/Section";
@@ -8,13 +9,9 @@ import { VideoCard } from "@/components/cards/VideoCard";
 import { CtaBand } from "@/components/sections/HomeSections";
 import { videos } from "@/content/media";
 import { site } from "@/lib/site";
+import * as copy from "@/lib/copy";
 
-export const metadata: Metadata = {
-  title: "Health Talks | Acupressure Treatment in Chikkadpally",
-  description:
-    "Watch videos on acupuncture and acupressure at Bhargavi Health World, Chikkadpally, Hyderabad. Discover expert pain relief and wellness therapies.",
-  alternates: { canonical: "/videos" },
-};
+export const metadata: Metadata = metadataFor("videos");
 
 export default function VideosPage() {
   const youtube = site.socials.find((s) => s.name === "YouTube")!;
@@ -27,12 +24,8 @@ export default function VideosPage() {
           { label: "Media", href: "/gallery" },
           { label: "Health Talks" },
         ]}
-        label="Our expert"
-        title={
-          <>
-            Health <span className="italic">talks</span>
-          </>
-        }
+        label={copy.text("videos", "hero", "label")}
+        title={copy.heading("videos", "hero")}
         lead={`${site.founder.honorific} ${site.founder.name} on pressure points, diet and the small daily fixes that make a difference. Several talks are in Telugu.`}
       />
 
@@ -48,7 +41,7 @@ export default function VideosPage() {
 
           <Reveal className="mt-block flex justify-center">
             <ButtonLink href={youtube.href} variant="outline" size="lg">
-              Subscribe on YouTube
+              {copy.text("videos", "subscribeCta", "label")}
             </ButtonLink>
           </Reveal>
         </Wrap>

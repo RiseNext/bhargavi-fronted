@@ -24,20 +24,28 @@ import {
   stats,
   whyChooseUs,
 } from "@/content/site-content";
+import * as copy from "@/lib/copy";
 
 /* ================================================================
    Intro — asymmetric editorial split
    ================================================================ */
 
 export function Intro() {
+  // D-027's two `home.intro` image rows, in sort_order: the tall lead image and
+  // the square one beside the Since card.
+  const lead = copy.item("home", "intro", "images", 0);
+  const square = copy.item("home", "intro", "images", 1);
+  const since = copy.extraObject("home", "intro", "sinceCard");
+  const introCta = copy.action("home", "intro");
+
   return (
     <Section tone="ivory">
       <Wrap className="grid gap-x-block gap-y-block lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start">
         <div className="group relative">
           <Reveal>
             <Frame
-              src="/images/services/seed-therapy.jpg"
-              alt="Seed therapy applied to pressure points on the hand"
+              src={copy.itemText(lead, "image", "home.intro.images[0]")}
+              alt={copy.itemText(lead, "alt", "home.intro.images[0]")}
               radius="xl"
               zoom
               sizes="(min-width: 1024px) 45vw, 92vw"
@@ -47,20 +55,18 @@ export function Intro() {
           <Reveal delay={120}>
             <div className="mt-gutter grid grid-cols-2 gap-gutter">
               <Frame
-                src="/images/services/accupressure.jpg"
-                alt="Acupressure applied by hand"
+                src={copy.itemText(square, "image", "home.intro.images[1]")}
+                alt={copy.itemText(square, "alt", "home.intro.images[1]")}
                 radius="lg"
                 sizes="(min-width: 1024px) 22vw, 45vw"
                 className="aspect-square w-full"
               />
               <div className="flex flex-col justify-between rounded-lg border border-line p-[clamp(1rem,0.8rem+0.9vw,1.5rem)]">
-                <span className="label text-terracotta">Since</span>
+                <span className="label text-terracotta">{since.label}</span>
                 <span className="font-display text-[clamp(2rem,1.4rem+2.4vw,3.25rem)] leading-none text-ink">
-                  2017
+                  {since.value}
                 </span>
-                <span className="text-small text-muted">
-                  Practising in Chikkadpally
-                </span>
+                <span className="text-small text-muted">{since.caption}</span>
               </div>
             </div>
           </Reveal>
@@ -69,13 +75,8 @@ export function Intro() {
         <div className="lg:pt-block">
           <SectionHead
             align="left"
-            label="About the clinic"
-            title={
-              <>
-                Healing that treats the <span className="italic">whole</span>{" "}
-                person
-              </>
-            }
+            label={copy.text("home", "intro", "label")}
+            title={copy.heading("home", "intro")}
           />
 
           <Reveal delay={120}>
@@ -83,24 +84,22 @@ export function Intro() {
           </Reveal>
 
           <ul className="mt-block divide-y divide-line border-y border-line">
-            {[
-              "A full consultation before any treatment begins",
-              "Plans built around your routine, not a template",
-              "Therapies that complement your existing medication",
-              "Clear pricing from the very first visit",
-            ].map((item, i) => (
-              <Reveal key={item} delay={i * 80}>
-                <li className="flex items-baseline gap-[clamp(0.75rem,2vw,1.5rem)] py-4">
-                  <IndexRule n={i + 1} />
-                  <span className="text-body text-ink-2">{item}</span>
-                </li>
-              </Reveal>
-            ))}
+            {copy.items("home", "intro", "bulletList").map((row, i) => {
+              const bullet = copy.itemText(row, "text", "home.intro.bulletList");
+              return (
+                <Reveal key={bullet} delay={i * 80}>
+                  <li className="flex items-baseline gap-[clamp(0.75rem,2vw,1.5rem)] py-4">
+                    <IndexRule n={i + 1} />
+                    <span className="text-body text-ink-2">{bullet}</span>
+                  </li>
+                </Reveal>
+              );
+            })}
           </ul>
 
           <Reveal delay={200}>
             <div className="mt-block flex flex-wrap items-center gap-x-block gap-y-stack">
-              <ButtonLink href="/about">Read her story</ButtonLink>
+              <ButtonLink href={introCta.href}>{introCta.label}</ButtonLink>
               <div className="flex items-center gap-3">
                 <Image
                   src={site.founder.photo}
@@ -131,10 +130,14 @@ export function TherapyIndex() {
     <Section tone="paper" id="therapies" className="overflow-clip">
       <Wrap>
         <SectionHead
-          label="What we provide"
-          title="Ten therapies, one approach"
-          lead="Alternative medicine treats the whole person — mind, body and spirit — rather than just the symptom that brought you in."
-          action={<ArrowLink href="/services">All services</ArrowLink>}
+          label={copy.text("home", "therapyIndex", "label")}
+          title={copy.heading("home", "therapyIndex")}
+          lead={copy.text("home", "therapyIndex", "lead")}
+          action={
+            <ArrowLink href={copy.action("home", "therapyIndex").href}>
+              {copy.action("home", "therapyIndex").label}
+            </ArrowLink>
+          }
         />
       </Wrap>
 
@@ -194,9 +197,13 @@ export function WhyUs() {
     <Section tone="ivory">
       <Wrap>
         <SectionHead
-          label="Why choose us"
-          title="Reasons people come back"
-          action={<ArrowLink href="/testimonials">Patient stories</ArrowLink>}
+          label={copy.text("home", "whyUs", "label")}
+          title={copy.heading("home", "whyUs")}
+          action={
+            <ArrowLink href={copy.action("home", "whyUs").href}>
+              {copy.action("home", "whyUs").label}
+            </ArrowLink>
+          }
         />
 
         <div className="mt-block grid gap-gutter sm:grid-cols-2 lg:grid-cols-4">
@@ -252,9 +259,9 @@ export function ProcessSteps() {
     <Section tone="paper">
       <Wrap>
         <SectionHead
-          label="How it works"
-          title="Your first visit, step by step"
-          lead="No guesswork and no packages you didn't ask for. Here is exactly what happens from the moment you walk in."
+          label={copy.text("global", "processSteps", "label")}
+          title={copy.heading("global", "processSteps")}
+          lead={copy.text("global", "processSteps", "lead")}
         />
 
         {/**
@@ -305,11 +312,19 @@ export function Testimonials() {
   return (
     <Section tone="ivory" className="overflow-clip">
       <Wrap>
+        {/**
+         * 🔴 The action label stays an EXPRESSION. `All {testimonials.length}
+         * reviews` tracks the collection; a stored "All 23 reviews" would go
+         * stale the moment a review is added or hidden. Only the destination is
+         * stored, so `cta_label` is NULL here and migration 013 permits it —
+         * see scripts/seed/code-owned-fields.ts. The href still comes from the
+         * database, so the stored half is not orphaned.
+         */}
         <SectionHead
-          label="Happy patients"
-          title="In their own words"
+          label={copy.text("home", "testimonials", "label")}
+          title={copy.heading("home", "testimonials")}
           action={
-            <ArrowLink href="/testimonials">
+            <ArrowLink href={copy.destination("home", "testimonials")}>
               All {testimonials.length} reviews
             </ArrowLink>
           }
@@ -337,6 +352,27 @@ export function Testimonials() {
    ================================================================ */
 
 export function AppointmentBand() {
+  /**
+   * The three contact rows. Only the LABELS are stored — every value and href
+   * is a live expression (`site.phones[0]`, `site.whatsapp.href`,
+   * `site.address.full`, `site.mapsUrl`), and freezing any of them would stop
+   * the row tracking the branch record it comes from. The arrays are zipped by
+   * position, so a stored row count that no longer matches the code is a build
+   * failure rather than a silently mislabelled row.
+   */
+  const rowLabels = copy.items("home", "appointmentBand", "rows");
+  const rowTargets = [
+    { v: site.phones[0].label, href: site.phones[0].href },
+    { v: "Chat with the clinic", href: site.whatsapp.href },
+    { v: site.address.full, href: site.mapsUrl },
+  ];
+  if (rowLabels.length !== rowTargets.length) {
+    throw new Error(
+      `home.appointmentBand.rows holds ${String(rowLabels.length)} row(s) but the ` +
+        `component supplies ${String(rowTargets.length)} destination(s).`,
+    );
+  }
+
   return (
     <Section tone="walnut" id="appointment" className="overflow-clip">
       <Arc className="absolute -left-[10%] bottom-[-10%] w-[min(34rem,60vw)] rotate-180 text-ivory/12" />
@@ -345,17 +381,20 @@ export function AppointmentBand() {
           <SectionHead
             align="left"
             invert
-            label="For appointment"
-            title="Walk in to exceptional care"
-            lead="Tell us what's troubling you and when suits. We call back to confirm — usually the same day."
+            label={copy.text("home", "appointmentBand", "label")}
+            title={copy.heading("home", "appointmentBand")}
+            lead={copy.text("home", "appointmentBand", "lead")}
           />
 
           <ul className="mt-block divide-y divide-ivory/15 border-y border-ivory/15">
-            {[
-              { k: "Call", v: site.phones[0].label, href: site.phones[0].href },
-              { k: "WhatsApp", v: "Chat with the clinic", href: site.whatsapp.href },
-              { k: "Visit", v: site.address.full, href: site.mapsUrl },
-            ].map((row, i) => (
+            {rowTargets.map((target, i) => ({
+              k: copy.itemText(
+                copy.item("home", "appointmentBand", "rows", i),
+                "label",
+                `home.appointmentBand.rows[${String(i)}]`,
+              ),
+              ...target,
+            })).map((row, i) => (
               <Reveal key={row.k} delay={i * 80}>
                 <li>
                   <a
@@ -377,9 +416,11 @@ export function AppointmentBand() {
 
         <Reveal delay={140}>
           <div className="rounded-xl bg-ivory p-[clamp(1.25rem,0.9rem+1.8vw,2.5rem)] text-ink-2">
-            <h3 className="text-h3 text-ink">Request an appointment</h3>
+            <h3 className="text-h3 text-ink">
+              {copy.extra("home", "appointmentBand", "formCardTitle")}
+            </h3>
             <p className="mt-2 text-small text-muted">
-              Fields marked <span className="text-terracotta">*</span> are required.
+              {copy.noteWithRequiredGlyph("home", "appointmentBand", "formCardNote")}
             </p>
             <div className="mt-block">
               <AppointmentForm />
@@ -399,11 +440,17 @@ export function HealthTalks() {
   return (
     <Section tone="sand">
       <Wrap>
+        {/* The lead stays an expression: it names the founder, so a stored copy
+            would stop tracking site_settings (D-040). */}
         <SectionHead
-          label="Our expert"
-          title="Health talks"
+          label={copy.text("home", "healthTalks", "label")}
+          title={copy.heading("home", "healthTalks")}
           lead={`${site.founder.honorific} ${site.founder.name} on pressure points, diet and the small daily fixes that make a difference.`}
-          action={<ArrowLink href="/videos">All videos</ArrowLink>}
+          action={
+            <ArrowLink href={copy.action("home", "healthTalks").href}>
+              {copy.action("home", "healthTalks").label}
+            </ArrowLink>
+          }
         />
 
         <div className="mt-block grid gap-x-gutter gap-y-block sm:grid-cols-2 lg:grid-cols-3">
@@ -466,12 +513,12 @@ export function FaqSection() {
         <div className="lg:sticky lg:top-nav lg:self-start">
           <SectionHead
             align="left"
-            label="What people ask"
-            title="Questions before you book"
-            lead="Understanding alternate therapies is part of getting the right treatment — and of helping your body along."
+            label={copy.text("home", "faqSection", "label")}
+            title={copy.heading("home", "faqSection")}
+            lead={copy.text("home", "faqSection", "lead")}
             action={
-              <ButtonLink href="/contact" variant="outline">
-                Ask us something else
+              <ButtonLink href={copy.action("home", "faqSection").href} variant="outline">
+                {copy.action("home", "faqSection").label}
               </ButtonLink>
             }
           />
@@ -501,22 +548,30 @@ export function CtaBand() {
         <Reveal>
           <p className="label text-terracotta-soft">
             <Seed />
-            Start today
+            {copy.text("global", "ctaBand", "label")}
           </p>
           <h2 className="mt-2.5 max-w-[24ch] font-display text-h3 text-ivory">
-            Your body has been asking for this
+            {copy.heading("global", "ctaBand")}
           </h2>
           <p className="mt-2 max-w-[46ch] text-small text-ivory/60">
-            Book a consultation and find out what is actually causing the pain —
-            then what to do about it.
+            {copy.text("global", "ctaBand", "lead")}
           </p>
         </Reveal>
 
         <Reveal delay={120} className="shrink-0">
           <div className="flex flex-wrap items-center gap-3">
-            <ButtonLink href="/contact" variant="inverse">
-              Book an appointment
+            <ButtonLink href={copy.action("global", "ctaBand").href} variant="inverse">
+              {copy.action("global", "ctaBand").label}
             </ButtonLink>
+            {/**
+             * 🔴 BOTH halves of this second CTA are code-owned, by the owner's
+             * decision on D-040. `site.phones[0].href` must stay a runtime
+             * expression — D-013 gives phones their own `phone_sort_order`, so a
+             * stored href would silently point at the wrong branch the moment
+             * that ordering changes — and the label `Call {…label}` tracks it.
+             * `cta2_label` and `cta2_href` are therefore both NULL in the
+             * database and absent from `pageCopy`. Do not "finish wiring" this.
+             */}
             <ButtonLink
               href={site.phones[0].href}
               variant="outline"

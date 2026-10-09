@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Field, FormStatus, TextArea } from "./fields";
+import { Field, FormStatus, Honeypot, TextArea } from "./fields";
 import { whatsappUrl } from "@/lib/whatsapp";
 
 type State = "idle" | "sending" | "sent" | "error";
@@ -40,6 +40,8 @@ export function ContactForm({ tone = "light" }: { tone?: "light" | "dark" }) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-stack">
+      {/* F-1 spam honeypot. Invisible to visitors; adds no layout. */}
+      <Honeypot />
       <div className="grid gap-stack sm:grid-cols-2">
         <Field label="Your name" name="name" required autoComplete="name" />
         <Field

@@ -1,17 +1,19 @@
 /**
- * Careers copy. CONTENT-TODO: every role below is a PLACEHOLDER written for
- * this build — the clinic has not confirmed real openings yet. Replace titles,
- * branches and requirements with actual vacancies before launch, and only
- * then consider adding JobPosting JSON-LD (Google penalizes structured data
- * for listings that aren't real). See docs/CONTENT-TODO.md.
+ * ⚠ GENERATED FILE — DO NOT EDIT BY HAND.
+ *
+ * Produced by `scripts/generate-content.mjs` from GET /api/jobs.
+ * Run `npm run generate:content` to refresh; the result is committed so a
+ * build never depends on the API being reachable (D-016).
+ *
+ * Hand edits are lost on the next build. Change the content in the admin panel.
  */
 
 export type Job = {
   /** Reserved for a future /careers/[slug] detail page. */
   slug: string;
   title: string;
-  type: "Full-time" | "Part-time";
-  branch: "Chikkadpally" | "Bowenpally" | "Either branch";
+  type: string;
+  branch: string;
   experience: string;
   excerpt: string;
   responsibilities: string[];
@@ -25,8 +27,7 @@ export const jobs: Job[] = [
     type: "Full-time",
     branch: "Chikkadpally",
     experience: "2+ years",
-    excerpt:
-      "Run your own treatment room under the guidance of our founder — assessments, needling and follow-up plans.",
+    excerpt: "Run your own treatment room under the guidance of our founder — assessments, needling and follow-up plans.",
     responsibilities: [
       "Assess patients and plan courses of acupuncture sittings",
       "Maintain strict single-use needle and hygiene standards",
@@ -46,8 +47,7 @@ export const jobs: Job[] = [
     type: "Full-time",
     branch: "Bowenpally",
     experience: "1–3 years",
-    excerpt:
-      "Lead movement-based recovery alongside our acupuncture and chiropractic care at the Bowenpally branch.",
+    excerpt: "Lead movement-based recovery alongside our acupuncture and chiropractic care at the Bowenpally branch.",
     responsibilities: [
       "Design exercise and mobility programmes for pain patients",
       "Deliver hands-on sessions and track measurable progress",
@@ -67,8 +67,7 @@ export const jobs: Job[] = [
     type: "Part-time",
     branch: "Either branch",
     experience: "3+ years",
-    excerpt:
-      "Whole-person consultations that look past symptoms to diet, habits and stress — the first step for many of our patients.",
+    excerpt: "Whole-person consultations that look past symptoms to diet, habits and stress — the first step for many of our patients.",
     responsibilities: [
       "Conduct 60-minute lifestyle and health assessments",
       "Build natural, practical treatment plans",
@@ -88,8 +87,7 @@ export const jobs: Job[] = [
     type: "Part-time",
     branch: "Chikkadpally",
     experience: "1+ years",
-    excerpt:
-      "Turn consultation findings into food plans families can actually follow — affordable, local and sustainable.",
+    excerpt: "Turn consultation findings into food plans families can actually follow — affordable, local and sustainable.",
     responsibilities: [
       "Prepare personalised diet charts for patients",
       "Counsel patients on realistic, budget-friendly changes",
@@ -109,8 +107,7 @@ export const jobs: Job[] = [
     type: "Full-time",
     branch: "Either branch",
     experience: "1+ years",
-    excerpt:
-      "The first voice patients hear — appointments, enquiries and a calm, welcoming front desk.",
+    excerpt: "The first voice patients hear — appointments, enquiries and a calm, welcoming front desk.",
     responsibilities: [
       "Manage appointment bookings by phone and message",
       "Welcome walk-ins and guide them to the right therapy",
@@ -130,8 +127,7 @@ export const jobs: Job[] = [
     type: "Full-time",
     branch: "Bowenpally",
     experience: "Fresher-friendly",
-    excerpt:
-      "Keep treatment rooms ready and therapists supported — a hands-on start to a career in wellness care.",
+    excerpt: "Keep treatment rooms ready and therapists supported — a hands-on start to a career in wellness care.",
     responsibilities: [
       "Prepare and reset treatment rooms between sittings",
       "Maintain hygiene and single-use supplies stock",
@@ -147,4 +143,19 @@ export const jobs: Job[] = [
   },
 ];
 
+/** Derived helper — code-owned (R-g). */
 export const jobBySlug = (slug: string) => jobs.find((j) => j.slug === slug);
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * ✅ D-037 — the mailto subject is CODE-OWNED chrome, not CMS content.
+ *
+ * It is an `encodeURIComponent`-wrapped query parameter, never rendered as
+ * visible copy, in the same class as `site.whatsapp.href`. The editable
+ * sentence the visitor actually reads — "with the role in the subject line" —
+ * is `careers.apply.extra.resumeInstruction`.
+ *
+ * ⚠ X-34 is an open DEFECT here: the subject omits the role. Fixing it is a
+ * one-line change to this constant plus the modal path.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+export const mailtoSubject = "Job application — Bhargavi Health World";

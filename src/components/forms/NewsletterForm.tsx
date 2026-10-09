@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { Honeypot } from "./fields";
 
 type State = "idle" | "sending" | "sent" | "error";
 
@@ -35,6 +36,8 @@ export function NewsletterForm() {
         onSubmit={onSubmit}
         className="flex flex-wrap items-end gap-x-4 gap-y-3 border-b border-ivory/25 pb-3 focus-within:border-ivory"
       >
+        {/* F-1 spam honeypot. Invisible to visitors; adds no layout. */}
+        <Honeypot />
         <label htmlFor={id} className="sr-only">
           Email address
         </label>

@@ -7,6 +7,8 @@ import { Footer } from "@/components/layout/Footer";
 import { FloatingActions } from "@/components/layout/FloatingActions";
 import { Preloader } from "@/components/layout/Preloader";
 import { site } from "@/lib/site";
+import { openingHoursSpecification } from "@/lib/hours";
+import { absoluteUrl, serialiseJsonLd } from "@/lib/schema";
 
 /** Variable serif with optical sizing — the display voice. */
 const fraunces = Fraunces({
@@ -66,7 +68,7 @@ const businessSchema = {
   telephone: site.branches[0].phone,
   email: site.email,
   priceRange: site.priceRange,
-  image: `${site.url}${site.founder.photo}`,
+  image: absoluteUrl(site.url, site.founder.photo),
   address: {
     "@type": "PostalAddress",
     streetAddress: `${site.address.line1}, ${site.address.line2}`,
@@ -80,22 +82,11 @@ const businessSchema = {
     latitude: site.geo.lat,
     longitude: site.geo.lng,
   },
-  openingHoursSpecification: [
-    {
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday",
-      ],
-      opens: "09:00",
-      closes: "21:00",
-    },
-  ],
+  // 🔴 Derived from the generated hours (D-028), not written out here. The
+  // hand-written version did not move when the hours changed in the admin
+  // panel, so the structured data could outlive the fact it described — and
+  // wrong opening hours in search results is worse than none.
+  openingHoursSpecification,
   sameAs: site.socials.map((s) => s.href),
 };
 
@@ -112,7 +103,7 @@ export default function RootLayout({
         <FloatingActions />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(businessSchema) }}
+          dangerouslySetInnerHTML={{ __html: serialiseJsonLd(businessSchema) }}
         />
       </body>
     </html>

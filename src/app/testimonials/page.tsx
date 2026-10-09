@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { metadataFor } from "@/lib/page-metadata";
+import * as copy from "@/lib/copy";
 
 import { PageHero } from "@/components/ui/PageHero";
 import { Section, Wrap } from "@/components/ui/Section";
@@ -7,24 +9,15 @@ import { TestimonialCard } from "@/components/cards/TestimonialCard";
 import { CtaBand } from "@/components/sections/HomeSections";
 import { testimonials } from "@/content/testimonials";
 
-export const metadata: Metadata = {
-  title: "Testimonials | Acupuncture & Wellness Treatment Reviews",
-  description:
-    "Read patient testimonials at Bhargavi Health World, Hyderabad, and see how our acupuncture and wellness treatments aid pain relief and stress management.",
-  alternates: { canonical: "/testimonials" },
-};
+export const metadata: Metadata = metadataFor("testimonials");
 
 export default function TestimonialsPage() {
   return (
     <>
       <PageHero
         breadcrumb={[{ label: "Home", href: "/" }, { label: "Testimonials" }]}
-        label="Happy patients"
-        title={
-          <>
-            In their <span className="italic">own</span> words
-          </>
-        }
+        label={copy.text("testimonials", "hero", "label")}
+        title={copy.heading("testimonials", "hero")}
         lead={`${testimonials.length} reviews from people treated for pain, thyroid, PCOD, migraine, post-surgery recovery and more.`}
       />
 

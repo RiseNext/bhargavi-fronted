@@ -13,8 +13,26 @@ import { whatsappUrl } from "@/lib/whatsapp";
 import { CtaBand } from "@/components/sections/HomeSections";
 import { services, serviceBySlug } from "@/content/services";
 import { site } from "@/lib/site";
+import { breadcrumbList, serialiseJsonLd } from "@/lib/schema";
+import { hoursShort } from "@/lib/hours";
+import * as copy from "@/lib/copy";
 
 type Params = { params: Promise<{ slug: string }> };
+
+/**
+ * The three meta-row labels, in `sort_order`.
+ *
+ * Only the labels are stored. Every VALUE is a live `service` field —
+ * `duration`, `priceFrom`, `typicalCourse` — so storing those here would
+ * duplicate the services collection and let a price edit move one surface but
+ * not the other.
+ */
+const metaLabel = (index: number): string =>
+  copy.itemText(
+    copy.item("serviceDetail", "metaRow", "items", index),
+    "label",
+    `serviceDetail.metaRow.items[${String(index)}]`,
+  );
 
 export function generateStaticParams() {
   return services.map((s) => ({ slug: s.slug }));
@@ -39,6 +57,13 @@ export default async function ServiceDetailPage({ params }: Params) {
   if (!service) notFound();
 
   const related = services.filter((s) => s.slug !== service.slug).slice(0, 3);
+
+  // Exactly the three crumbs the <nav aria-label="Breadcrumb"> below renders.
+  const crumbSchema = breadcrumbList(site.url, [
+    { name: "Home", href: "/" },
+    { name: "Services", href: "/services" },
+    { name: service.title },
+  ]);
 
   const schema = {
     "@context": "https://schema.org",
@@ -94,9 +119,15 @@ export default async function ServiceDetailPage({ params }: Params) {
           <Reveal delay={260}>
             <dl className="mt-block grid gap-y-stack border-y border-line py-stack sm:grid-cols-3">
               {[
-                { k: "Session length", v: service.duration },
-                { k: "From", v: "₹100" },
-                { k: "Typical course", v: "2–4 sittings" },
+                { k: metaLabel(0), v: service.duration },
+                // 🔴 `priceFrom` and `typicalCourse` ARE generated fields. They
+                // were duplicated here as literals, so an admin price change
+                // moved nothing on the page. The stored value is the complete
+                // phrase "From ₹100", and this cell already labels itself
+                // "From" — so the redundant prefix is dropped rather than
+                // rendered twice.
+                { k: metaLabel(1), v: (service.priceFrom ?? "").replace(/^From\s+/i, "") },
+                { k: metaLabel(2), v: service.typicalCourse },
               ].map((row) => (
                 <div key={row.k}>
                   <dt className="label text-terracotta">{row.k}</dt>
@@ -124,7 +155,11 @@ export default async function ServiceDetailPage({ params }: Params) {
       <Section tone="ivory">
         <Wrap className="grid gap-block lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
           <div>
-            <SectionHead align="left" label="Overview" title="About this therapy" />
+            <SectionHead
+              align="left"
+              label={copy.text("serviceDetail", "overview", "label")}
+              title={copy.heading("serviceDetail", "overview")}
+            />
             <div className="prose mt-block">
               {service.body.map((para, i) => (
                 <Reveal key={i} delay={i * 70} as="p">
@@ -136,8 +171,8 @@ export default async function ServiceDetailPage({ params }: Params) {
             <div className="mt-block">
               <SectionHead
                 align="left"
-                label="Indications"
-                title="What it can help with"
+                label={copy.text("serviceDetail", "indications", "label")}
+                title={copy.heading("serviceDetail", "indications")}
               />
               <ul className="mt-block border-t border-line">
                 {service.treats.map((item, i) => (
@@ -153,10 +188,7 @@ export default async function ServiceDetailPage({ params }: Params) {
 
             <Reveal delay={160}>
               <p className="mt-block rounded-lg bg-olive-soft px-[clamp(1.1rem,0.9rem+1vw,1.75rem)] py-stack text-small text-olive">
-                <strong className="font-semibold">Please note:</strong> this is a
-                complementary therapy. It works alongside — not instead of — the
-                medical care you already receive. Bring your current
-                prescriptions to your first consultation.
+                {copy.withLeadIn("serviceDetail", "disclaimer", "lead", "font-semibold")}
               </p>
             </Reveal>
           </div>
@@ -167,7 +199,7 @@ export default async function ServiceDetailPage({ params }: Params) {
               <div className="rounded-xl border border-line bg-paper p-[clamp(1.25rem,0.9rem+1.6vw,2rem)]">
                 <h2 className="text-h3 text-ink">Book {service.title}</h2>
                 <p className="mt-2 text-small text-muted">
-                  We call back to confirm your slot — usually the same day.
+                  {copy.extra("serviceDetail", "bookingAside", "note")}
                 </p>
                 <div className="mt-block">
                   <AppointmentForm defaultService={service.slug} compact />
@@ -175,7 +207,9 @@ export default async function ServiceDetailPage({ params }: Params) {
               </div>
 
               <div className="mt-gutter rounded-xl border border-line p-[clamp(1.25rem,0.9rem+1.6vw,2rem)]">
-                <p className="label text-terracotta">Prefer to call?</p>
+                <p className="label text-terracotta">
+                  {copy.text("serviceDetail", "callAside", "label")}
+                </p>
                 {site.phones.map((p) => (
                   <a
                     key={p.href}
@@ -188,9 +222,8 @@ export default async function ServiceDetailPage({ params }: Params) {
                     {p.label}
                   </a>
                 ))}
-                <p className="mt-stack text-small text-muted">
-                  Mon–Sun · 9:00 AM – 9:00 PM
-                </p>
+                {/* Derived from the generated hours (D-028). Was a literal. */}
+                <p className="mt-stack text-small text-muted">{hoursShort}</p>
                 {/* Carries the therapy name, so the clinic sees what the
                     enquiry is about before reading a word. */}
                 <ButtonLink
@@ -209,7 +242,10 @@ export default async function ServiceDetailPage({ params }: Params) {
       {/* Related */}
       <Section tone="sand">
         <Wrap>
-          <SectionHead label="Explore more" title="Other therapies you might need" />
+          <SectionHead
+            label={copy.text("serviceDetail", "related", "label")}
+            title={copy.heading("serviceDetail", "related")}
+          />
           <div className="mt-block grid gap-x-gutter gap-y-block sm:grid-cols-2 lg:grid-cols-3">
             {related.map((s, i) => (
               <Reveal key={s.slug} delay={i * 90}>
@@ -224,8 +260,27 @@ export default async function ServiceDetailPage({ params }: Params) {
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        dangerouslySetInnerHTML={{ __html: serialiseJsonLd(schema) }}
       />
+
+      {/*
+        `BreadcrumbList` — E18 / S-3.
+
+        🔴 Emitted here rather than inherited from `PageHero`, because this page
+        renders its OWN breadcrumb nav (the trail ends in the service title, so
+        it could not use the shared banner). The three names below are read off
+        that nav verbatim — "Home", "Services", `service.title` — so the markup
+        and the visible trail cannot disagree.
+
+        The other seven breadcrumb pages get theirs from `PageHero`. One emitter
+        per page, never both: this page does not use PageHero.
+      */}
+      {crumbSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serialiseJsonLd(crumbSchema) }}
+        />
+      )}
     </>
   );
 }

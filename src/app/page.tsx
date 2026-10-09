@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { metadataFor } from "@/lib/page-metadata";
 import { Hero } from "@/components/sections/Hero";
 import {
   AppointmentBand,
@@ -12,13 +13,9 @@ import {
   WhyUs,
 } from "@/components/sections/HomeSections";
 import { faqs } from "@/content/site-content";
+import { serialiseJsonLd } from "@/lib/schema";
 
-export const metadata: Metadata = {
-  title: "Wellness Center in Chikkadpally | Acupressure Clinic in Chikkadpally",
-  description:
-    "Bhargavi Health World in Chikkadpally, Hyderabad offers holistic wellness care. Led by Anjana Bhargavi (Diploma in Acupuncture), we specialize in acupuncture, pain management & natural healing therapies.",
-  alternates: { canonical: "/" },
-};
+export const metadata: Metadata = metadataFor("home");
 
 const faqSchema = {
   "@context": "https://schema.org",
@@ -46,7 +43,7 @@ export default function HomePage() {
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: serialiseJsonLd(faqSchema) }}
       />
     </>
   );

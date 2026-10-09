@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "audit:responsive": "node scripts/audit.mjs",
-    "shots": "node scripts/crops.mjs"
+    "shots": "node scripts/crops.mjs",
+    "prebuild": "node scripts/generate-content.mjs",
+    "generate:content": "node scripts/generate-content.mjs",
+    "verify:content": "node scripts/generate-content.mjs --dry-run",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "next": "15.5.26",
@@ -27,5 +31,8 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "ws": "^8.21.3"
+  },
+  "engines": {
+    "node": ">=24.0.0"
   }
 }

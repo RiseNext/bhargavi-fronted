@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { site } from "@/lib/site";
+import { privacyPublished } from "@/content/page-copy";
 
 /** Official brand glyphs, filled with currentColor so hover styles apply. */
 const socialIcons: Record<string, React.ReactNode> = {
@@ -123,8 +124,30 @@ export function Footer() {
         </div>
 
         <div className="flex flex-col gap-1 border-t border-ivory/12 py-4 text-label text-ivory/40 sm:flex-row sm:items-center sm:justify-between">
+          {/*
+            🔴 The Privacy link goes INSIDE this paragraph, not beside it.
+            This bar is `sm:justify-between` with exactly TWO children; a third
+            would be distributed between them and move both existing items.
+            Appending here keeps the layout, the spacing and the responsive
+            behaviour identical.
+
+            Gated on `privacyPublished` so an unapproved policy is never linked:
+            while any client fact is unresolved the generator withholds the page
+            and this renders nothing at all (D-021).
+          */}
           <p>
             © {new Date().getFullYear()} {site.name}. All rights reserved.
+            {privacyPublished && (
+              <>
+                {" · "}
+                <Link
+                  href="/privacy"
+                  className="underline-grow transition-colors duration-300 hover:text-ivory"
+                >
+                  Privacy
+                </Link>
+              </>
+            )}
           </p>
           <p>Complementary therapies. Not a substitute for medical advice.</p>
         </div>

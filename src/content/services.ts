@@ -1,34 +1,36 @@
 /**
- * Service copy. Long-form `body` paragraphs are taken verbatim from the old
- * site (docs/textprd.md §6). `excerpt` and `treats` are written for this build
- * because the old site had no card-length copy.
+ * ⚠ GENERATED FILE — DO NOT EDIT BY HAND.
  *
- * copyStatus:
- *   "source"   — verbatim from the old site, usable
- *   "rewrite"  — old copy was wrong or unusable; placeholder written here
- * See docs/CONTENT-TODO.md.
+ * Produced by `scripts/generate-content.mjs` from GET /api/services.
+ * Run `npm run generate:content` to refresh; the result is committed so a
+ * build never depends on the API being reachable (D-016).
+ *
+ * Hand edits are lost on the next build. Change the content in the admin panel.
  */
 
 export type Service = {
+  /** Real updated_at from the database — used by sitemap.xml (SEO-01). */
+  updatedAt: string;
   slug: string;
   title: string;
   excerpt: string;
   image: string;
   duration: string;
-  body: string[];
   treats: string[];
-  copyStatus: "source" | "rewrite";
+  body: string[];
+  /** Display string, e.g. "From ₹100". Absent when no price is set. */
+  priceFrom?: string;
+  /** Display string, e.g. "2–4 sittings". Absent when unknown. */
+  typicalCourse?: string;
 };
 
 export const services: Service[] = [
   {
     slug: "acupuncture",
     title: "Acupuncture",
-    excerpt:
-      "Fine needles placed at specific points to restore the body's energy flow and ease long-standing pain.",
-    image: "/images/services/acupuncture.jpg",
+    excerpt: "Fine needles placed at specific points to restore the body's energy flow and ease long-standing pain.",
+    image: "https://res.cloudinary.com/iojros3g/image/upload/v1791475633/bhw/dev/services/acupuncture.jpg",
     duration: "45–60 min",
-    copyStatus: "source",
     treats: [
       "Chronic back, neck and joint pain",
       "Headaches and migraines",
@@ -42,15 +44,16 @@ export const services: Service[] = [
       "Commonly treated ailments include chronic pain, such as back pain, neck pain, and osteoarthritis. Acupuncture is also effective for managing headaches and migraines, as well as alleviating symptoms associated with stress, anxiety, and depression. Additionally, it may help with digestive issues like irritable bowel syndrome (IBS), and can support women's health by regulating menstrual cycles and alleviating symptoms of menopause.",
       "Many individuals seek acupuncture to enhance overall well-being, improve sleep quality, and boost immune function. While scientific research supports its efficacy for certain conditions, individual responses can vary, making it important for patients to consult qualified practitioners. As a holistic approach, acupuncture not only addresses physical symptoms but also considers emotional and lifestyle factors, reinforcing its role in integrative health care.",
     ],
+    updatedAt: "2026-10-09T11:17:42.996Z",
+    priceFrom: "From ₹100",
+    typicalCourse: "2–4 sittings",
   },
   {
     slug: "acupressure",
     title: "Acupressure",
-    excerpt:
-      "The same pressure points as acupuncture, worked with hands instead of needles — gentle, and needle-free.",
-    image: "/images/services/accupressure.jpg",
+    excerpt: "The same pressure points as acupuncture, worked with hands instead of needles — gentle, and needle-free.",
+    image: "https://res.cloudinary.com/iojros3g/image/upload/v1791475635/bhw/dev/services/accupressure.jpg",
     duration: "40–60 min",
-    copyStatus: "source",
     treats: [
       "Back and neck pain",
       "Headaches and migraines",
@@ -64,15 +67,16 @@ export const services: Service[] = [
       "Various conditions can be effectively treated or managed through acupressure, including headaches, migraines, back pain, digestive issues, and stress-related disorders. It can also help alleviate symptoms of insomnia, anxiety, and nausea, making it a popular complementary therapy for those undergoing treatments like chemotherapy. Conditions such as menstrual cramps and arthritis can benefit from targeted pressure application as well.",
       "The therapy is generally safe and can be done on oneself or with a practitioner's guidance, making it accessible for many. While research on its efficacy is still growing, many individuals report positive outcomes and relief from various ailments, showcasing acupressure's potential as a valuable holistic approach to health and wellness.",
     ],
+    updatedAt: "2026-10-09T11:17:42.996Z",
+    priceFrom: "From ₹100",
+    typicalCourse: "2–4 sittings",
   },
   {
     slug: "naturopathy-consultation",
     title: "Naturopathy Consultation",
-    excerpt:
-      "A whole-person assessment that looks past symptoms to the habits, diet and stress behind them.",
-    image: "/images/services/naturopathy.jpg",
+    excerpt: "A whole-person assessment that looks past symptoms to the habits, diet and stress behind them.",
+    image: "https://res.cloudinary.com/iojros3g/image/upload/v1791475636/bhw/dev/services/naturopathy.jpg",
     duration: "60 min consultation",
-    copyStatus: "source",
     treats: [
       "Long-term lifestyle conditions",
       "Low energy and fatigue",
@@ -85,15 +89,16 @@ export const services: Service[] = [
       "Naturopaths assess individual health conditions by considering not just physical symptoms but also emotional and environmental factors, encouraging a comprehensive understanding of health. Consultants create personalized treatment plans that may include dietary changes, supplementation, and mind-body practices, fostering self-care and preventive measures.",
       "The philosophy behind naturopathy is rooted in the belief that optimal health can be achieved by addressing the underlying causes of illness rather than merely alleviating symptoms. This integrative approach allows individuals to take active roles in their health journey, aligning with a growing trend toward natural and preventive medicine.",
     ],
+    updatedAt: "2026-10-09T11:17:42.996Z",
+    priceFrom: "From ₹100",
+    typicalCourse: "2–4 sittings",
   },
   {
     slug: "nutrition-and-diet",
     title: "Nutrition & Diet",
-    excerpt:
-      "Personalised meal planning built around your condition, your kitchen and what you will actually eat.",
-    image: "/images/services/nutrition-diet.jpg",
+    excerpt: "Personalised meal planning built around your condition, your kitchen and what you will actually eat.",
+    image: "https://res.cloudinary.com/iojros3g/image/upload/v1791475637/bhw/dev/services/nutrition-diet.jpg",
     duration: "45 min consultation",
-    copyStatus: "source",
     treats: [
       "Weight management",
       "Diabetes and blood-sugar support",
@@ -106,15 +111,16 @@ export const services: Service[] = [
       "Consultants assess clients' dietary habits, lifestyle factors, and nutritional deficiencies to develop tailored strategies that optimize health outcomes. They emphasize the importance of a balanced diet rich in whole foods, including fruits, vegetables, lean proteins, whole grains, and healthy fats, while also considering cultural preferences and lifestyle constraints.",
       "Successful nutrition consultants not only focus on meal plans but also work to foster a positive relationship with food, helping clients make sustainable lifestyle changes rather than relying on quick fixes or fad diets. Support also covers weight management, sports nutrition, and dietary restrictions due to allergies or chronic conditions.",
     ],
+    updatedAt: "2026-10-09T11:17:42.996Z",
+    priceFrom: "From ₹100",
+    typicalCourse: "2–4 sittings",
   },
   {
     slug: "seed-therapy",
     title: "Seed Therapy",
-    excerpt:
-      "Seeds fixed to pressure points for continuous, gentle stimulation between your clinic visits.",
-    image: "/images/services/seed-therapy.jpg",
+    excerpt: "Seeds fixed to pressure points for continuous, gentle stimulation between your clinic visits.",
+    image: "https://res.cloudinary.com/iojros3g/image/upload/v1791475640/bhw/dev/services/seed-therapy.jpg",
     duration: "30–40 min",
-    copyStatus: "source",
     treats: [
       "Stress, anxiety and low mood",
       "Chronic pain",
@@ -127,16 +133,16 @@ export const services: Service[] = [
       "Practitioners often use seed therapy to treat a range of conditions, including stress, anxiety, and depression, by applying seeds to specific acupuncture points or energy centers in the body, thereby stimulating energy flow and facilitating emotional release. Additionally, seed therapy is employed to manage chronic pain, digestive issues, allergies, and inflammation.",
       "The practice emphasizes individualized treatment, focusing on the unique needs of each patient, thus promoting a tailored healing experience. While more scientific research is necessary to validate its efficacy, many individuals report positive outcomes. It serves as a complementary modality alongside conventional treatments.",
     ],
+    updatedAt: "2026-10-09T11:17:42.996Z",
+    priceFrom: "From ₹100",
+    typicalCourse: "2–4 sittings",
   },
   {
     slug: "cupping-therapy",
     title: "Cupping Therapy",
-    excerpt:
-      "Suction cups that lift the tissue, draw blood to tight muscle and release stubborn knots.",
-    image: "/images/services/cupping-therapy.jpg",
+    excerpt: "Suction cups that lift the tissue, draw blood to tight muscle and release stubborn knots.",
+    image: "https://res.cloudinary.com/iojros3g/image/upload/v1791475641/bhw/dev/services/cupping-therapy.jpg",
     duration: "30–45 min",
-    // The old site's cupping text actually described neurofeedback. Not reused.
-    copyStatus: "rewrite",
     treats: [
       "Shoulder, neck and upper-back tightness",
       "Muscle stiffness and knots",
@@ -148,15 +154,16 @@ export const services: Service[] = [
       "At Bhargavi Health World, cupping is most often used across the shoulders, neck and upper back, and is frequently combined with acupuncture in the same session. Sessions are short, and the circular marks that follow are a normal part of the therapy — they fade on their own over several days.",
       "Both dry cupping and fire cupping are offered. Which is appropriate depends on your condition and skin sensitivity, and is decided during consultation.",
     ],
+    updatedAt: "2026-10-09T11:17:42.996Z",
+    priceFrom: "From ₹100",
+    typicalCourse: "2–4 sittings",
   },
   {
     slug: "magneto-therapy",
     title: "Magneto Therapy",
-    excerpt:
-      "Magnetic fields applied over painful joints and muscles to support circulation and recovery.",
-    image: "/images/services/magneto-therapy.jpg",
+    excerpt: "Magnetic fields applied over painful joints and muscles to support circulation and recovery.",
+    image: "https://res.cloudinary.com/iojros3g/image/upload/v1791475642/bhw/dev/services/magneto-therapy.jpg",
     duration: "30 min",
-    copyStatus: "source",
     treats: [
       "Arthritis and joint pain",
       "Lower back pain",
@@ -169,15 +176,16 @@ export const services: Service[] = [
       "While scientific evidence on its efficacy remains mixed, proponents note it may help alleviate pain, particularly in conditions like arthritis, fibromyalgia, and lower back pain. Additionally, magnetotherapy is sometimes used to manage stress and improve sleep quality, as well as to aid recovery from injuries.",
       "Conditions often treated include sports injuries, chronic pain syndromes, post-surgical recovery, and certain neurological disorders. Effectiveness varies from person to person, and it should complement rather than replace conventional medical treatment. Please consult us before starting any alternative therapy.",
     ],
+    updatedAt: "2026-10-09T11:17:42.996Z",
+    priceFrom: "From ₹100",
+    typicalCourse: "2–4 sittings",
   },
   {
     slug: "chiropractic",
     title: "Chiropractic",
-    excerpt:
-      "Hands-on spinal adjustment for back, neck and nerve pain caused by misalignment.",
-    image: "/images/services/chiropractic.jpg",
+    excerpt: "Hands-on spinal adjustment for back, neck and nerve pain caused by misalignment.",
+    image: "https://res.cloudinary.com/iojros3g/image/upload/v1791475644/bhw/dev/services/chiropractic.jpg",
     duration: "30–45 min",
-    copyStatus: "source",
     treats: [
       "Lower back pain",
       "Neck pain and tension headaches",
@@ -190,15 +198,16 @@ export const services: Service[] = [
       "Chiropractic treatment is also frequently sought for neck pain, tension headaches, and migraines, as spinal alignment can affect nerve function and overall health. Additionally, many patients seek chiropractic care for joint pain in the arms or legs, and conditions such as sciatica, which is characterized by pain radiating along the sciatic nerve due to spinal issues.",
       "While many people turn to chiropractic for relief from chronic pain, the approach is holistic, promoting overall wellness through lifestyle advice, rehabilitative exercises, and nutrition guidance.",
     ],
+    updatedAt: "2026-10-09T11:17:42.996Z",
+    priceFrom: "From ₹100",
+    typicalCourse: "2–4 sittings",
   },
   {
     slug: "physiotherapy",
     title: "Physiotherapy",
-    excerpt:
-      "Guided movement, manual therapy and exercise to rebuild strength and get you moving again.",
-    image: "/images/services/physiotherapy.jpg",
+    excerpt: "Guided movement, manual therapy and exercise to rebuild strength and get you moving again.",
+    image: "https://res.cloudinary.com/iojros3g/image/upload/v1791475645/bhw/dev/services/physiotherapy.jpg",
     duration: "45 min",
-    copyStatus: "source",
     treats: [
       "Sports injuries",
       "Arthritis",
@@ -212,15 +221,16 @@ export const services: Service[] = [
       "Common conditions treated include sports injuries, arthritis, stroke rehabilitation, chronic pain, post-surgical recovery, and respiratory issues such as asthma or chronic obstructive pulmonary disease (COPD). Physiotherapists assess and design individualized treatment plans aimed at restoring mobility, improving strength, alleviating pain, and preventing further injuries.",
       "Therapeutic modalities such as heat, cold, ultrasound, and electrical stimulation are used to facilitate healing. Physiotherapy also plays a critical role in rehabilitation following orthopedic surgeries like knee or hip replacements, helping patients regain function and independence.",
     ],
+    updatedAt: "2026-10-09T11:17:42.996Z",
+    priceFrom: "From ₹100",
+    typicalCourse: "2–4 sittings",
   },
   {
     slug: "varma-kala",
     title: "Varma Kala",
-    excerpt:
-      "An ancient Tamil healing art working the body's varma points to restore balance and vitality.",
-    image: "/images/services/varma-kala.jpg",
+    excerpt: "An ancient Tamil healing art working the body's varma points to restore balance and vitality.",
+    image: "https://res.cloudinary.com/iojros3g/image/upload/v1791475646/bhw/dev/services/varma-kala.jpg",
     duration: "45 min",
-    copyStatus: "source",
     treats: [
       "Musculoskeletal disorders",
       "Joint pain",
@@ -233,8 +243,21 @@ export const services: Service[] = [
       "By applying pressure or gentle manipulation to these points, practitioners aim to restore balance within the body. Varma Kala is used for a variety of conditions, including musculoskeletal disorders, joint pains, digestive issues, and respiratory ailments. It is also thought to alleviate stress, enhance relaxation, and improve overall vitality.",
       "While many practitioners and patients report beneficial outcomes, direct empirical research on Varma Kala remains limited. It is best considered a complementary approach alongside, rather than a replacement for, conventional medical treatment.",
     ],
+    updatedAt: "2026-10-09T11:17:42.996Z",
+    priceFrom: "From ₹100",
+    typicalCourse: "2–4 sittings",
   },
 ];
 
-export const serviceBySlug = (slug: string) =>
-  services.find((s) => s.slug === slug);
+/** Derived helper — code-owned (R-g). */
+export const serviceBySlug = (slug: string) => services.find((s) => s.slug === slug);
+
+/**
+ * ✅ D-037 — the service hero's alt text, DERIVED rather than stored.
+ *
+ * `services/[slug]/page.tsx:112` renders this exact string today. It has no
+ * authored value of its own, so it is a helper rather than a content field —
+ * and emitting it here keeps the rendered markup byte-identical.
+ */
+export const serviceHeroAlt = (service: Service) =>
+  `${service.title} at ${"Bhargavi Health World"}`;

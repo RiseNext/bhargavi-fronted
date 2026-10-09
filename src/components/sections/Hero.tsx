@@ -4,6 +4,21 @@ import { Arc, Seed } from "@/components/ui/Decor";
 import { Reveal, Wipe } from "@/components/ui/Reveal";
 import { site } from "@/lib/site";
 import { services } from "@/content/services";
+import * as copy from "@/lib/copy";
+
+/**
+ * The wide treatment image, the single `home.hero` image row under D-027.
+ *
+ * 🔴 The portrait beside the headline is NOT a row here, deliberately. Its src
+ * is `site.founder.photo` and its alt is built from the founder's honorific,
+ * name and role — storing either would freeze a copy of a derived value, which
+ * is the duplication defect `lib/hours.ts` exists to prevent. D-027's mapping
+ * says so explicitly: "`home.hero` → `images` (1 row, the wide treatment
+ * image)".
+ */
+const wideImage = copy.item("home", "hero", "images", 0);
+const heroCta = copy.action("home", "hero");
+const heroCta2 = copy.action("home", "hero", "cta2");
 
 const heroStats = [
   { k: "8+", v: "Years practising" },
@@ -53,11 +68,11 @@ export function Hero() {
 
           <Reveal immediate delay={340}>
             <div className="mt-block flex flex-wrap gap-3">
-              <ButtonLink href="/contact" size="lg">
-                Book an appointment
+              <ButtonLink href={heroCta.href} size="lg">
+                {heroCta.label}
               </ButtonLink>
-              <ButtonLink href="/services" variant="outline" size="lg">
-                See therapies
+              <ButtonLink href={heroCta2.href} variant="outline" size="lg">
+                {heroCta2.label}
               </ButtonLink>
             </div>
           </Reveal>
@@ -110,8 +125,8 @@ export function Hero() {
           className="group order-4 lg:col-start-1 lg:row-span-2 lg:row-start-2"
         >
           <Frame
-            src="/images/services/acupuncture.jpg"
-            alt="Acupuncture needles placed along a patient's back at Bhargavi Health World"
+            src={copy.itemText(wideImage, "image", "home.hero.images[0]")}
+            alt={copy.itemText(wideImage, "alt", "home.hero.images[0]")}
             radius="xl"
             zoom
             sizes="(min-width: 1024px) 62vw, 92vw"

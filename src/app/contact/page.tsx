@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { metadataFor } from "@/lib/page-metadata";
 
 import { PageHero } from "@/components/ui/PageHero";
 import { Section, SectionHead, Wrap } from "@/components/ui/Section";
@@ -9,16 +10,42 @@ import { Accordion } from "@/components/ui/Accordion";
 import { AppointmentForm } from "@/components/forms/AppointmentForm";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { site } from "@/lib/site";
+import * as copy from "@/lib/copy";
 import { faqs } from "@/content/site-content";
 
-export const metadata: Metadata = {
-  title: "Contact | Trusted Acupuncture Clinic in Chikkadpally",
-  description:
-    "Reach out to Bhargavi Health World for expert acupuncture treatments in Chikkadpally, Hyderabad. Contact us for appointments, consultations, or inquiries about our pain relief and wellness services.",
-  alternates: { canonical: "/contact" },
-};
+export const metadata: Metadata = metadataFor("contact");
 
 type CardIcon = "phone" | "pin" | "mail" | "clock";
+
+const CARD_ICONS: readonly CardIcon[] = ["phone", "pin", "mail", "clock"];
+
+const isCardIcon = (value: string): value is CardIcon =>
+  (CARD_ICONS as readonly string[]).includes(value);
+
+/**
+ * The editable half of one info card: its label, its call-to-action wording and
+ * which icon it shows.
+ *
+ * `iconKey` is validated rather than cast — the admin stores a free string, and
+ * an unknown key would otherwise reach `iconPaths` and render an empty `<path>`,
+ * leaving a card with no icon and a green build.
+ */
+function infoCard(index: number): { label: string; cta: string; icon: CardIcon } {
+  const where = `contact.infoCards.items[${String(index)}]`;
+  const row = copy.item("contact", "infoCards", "items", index);
+  const iconKey = copy.itemText(row, "iconKey", where);
+  if (!isCardIcon(iconKey)) {
+    throw new Error(
+      `Page copy item "${where}" has iconKey "${iconKey}", which is not one of ` +
+        `${CARD_ICONS.join(", ")}.`,
+    );
+  }
+  return {
+    label: copy.itemText(row, "label", where),
+    cta: copy.itemText(row, "value", where),
+    icon: iconKey,
+  };
+}
 
 const cards: {
   label: string;
@@ -27,37 +54,35 @@ const cards: {
   href: string;
   cta: string;
 }[] = [
+  // The LINES and HREF of every card are live expressions — phone numbers,
+  // the resolved address, the email and the formatted hours all come from the
+  // branch records (D-029), and freezing any of them here is the duplication
+  // defect PUB-02 exists to remove. The card's label, its call-to-action
+  // wording and its icon ARE editable, so those come from
+  // `contact.infoCards.items`, zipped by position.
   {
-    label: "Call",
-    icon: "phone",
     lines: site.phones.map((p) => `${p.branch} · ${p.label}`),
     href: site.phones[0].href,
-    cta: "Tap to call",
+    ...infoCard(0),
   },
   {
-    label: "Visit",
-    icon: "pin",
     lines: [
       site.address.line1,
       site.address.line2,
       `${site.address.city} – ${site.address.postalCode}`,
     ],
     href: site.mapsUrl,
-    cta: "Open in Maps",
+    ...infoCard(1),
   },
   {
-    label: "Email",
-    icon: "mail",
     lines: [site.email],
     href: `mailto:${site.email}`,
-    cta: "Send an email",
+    ...infoCard(2),
   },
   {
-    label: "Hours",
-    icon: "clock",
     lines: site.hours.map((h) => `${h.days} · ${h.time}`),
     href: site.whatsapp.href,
-    cta: "Message on WhatsApp",
+    ...infoCard(3),
   },
 ];
 
@@ -95,13 +120,9 @@ export default function ContactPage() {
     <>
       <PageHero
         breadcrumb={[{ label: "Home", href: "/" }, { label: "Contact" }]}
-        label="For appointment"
-        title={
-          <>
-            Book a <span className="italic">consultation</span>
-          </>
-        }
-        lead="Walk in to experience a world of exceptional care in alternate medicine — or reserve a slot so you don't have to wait."
+        label={copy.text("contact", "hero", "label")}
+        title={copy.heading("contact", "hero")}
+        lead={copy.text("contact", "hero", "lead")}
         aside={
           /* The two things someone lands here to do, above the fold. */
           <div className="mt-stack flex flex-wrap items-center gap-3">
@@ -172,7 +193,7 @@ export default function ContactPage() {
                     route out sits under it. */}
                 <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-[clamp(1rem,0.8rem+0.8vw,1.5rem)] py-3.5">
                   <p className="text-small text-muted">
-                    Near Pista House, Chikkadpally · Metro Pillar 1115
+                    {copy.extra("contact", "map", "captionBelow")}
                   </p>
                   <ArrowLink href={site.mapsUrl} external>
                     Get directions
@@ -184,10 +205,10 @@ export default function ContactPage() {
             <Reveal delay={150}>
               <div className="rounded-xl bg-walnut p-[clamp(1.25rem,0.9rem+1.8vw,2.5rem)] text-ivory/70">
                 <h2 className="font-display text-h3 text-ivory">
-                  Leave a message instead
+                  {copy.heading("contact", "messageBlock")}
                 </h2>
                 <p className="mt-2 text-small text-ivory/55">
-                  Not ready to book? Ask a question and we’ll reply.
+                  {copy.text("contact", "messageBlock", "lead")}
                 </p>
                 <div className="mt-block [&_input]:border-ivory/25 [&_input]:text-ivory [&_input]:placeholder:text-ivory/35 [&_label]:text-ivory/55 [&_select]:border-ivory/25 [&_select]:text-ivory [&_textarea]:border-ivory/25 [&_textarea]:text-ivory">
                   <ContactForm tone="dark" />
@@ -199,9 +220,9 @@ export default function ContactPage() {
           <div>
             <SectionHead
               align="left"
-              label="For appointment"
-              title="Tell us what's troubling you"
-              lead="Share a little detail and a time that suits. We call back to confirm — usually the same day."
+              label={copy.text("contact", "appointmentBlock", "label")}
+              title={copy.text("contact", "appointmentBlock", "title")}
+              lead={copy.text("contact", "appointmentBlock", "lead")}
             />
             <Reveal delay={110}>
               <div className="mt-block rounded-xl bg-paper p-[clamp(1.25rem,0.9rem+1.8vw,2.5rem)]">
@@ -218,8 +239,8 @@ export default function ContactPage() {
           <div className="lg:sticky lg:top-nav lg:self-start">
             <SectionHead
               align="left"
-              label="Before you come in"
-              title="Quick answers"
+              label={copy.text("contact", "faqSection", "label")}
+              title={copy.text("contact", "faqSection", "title")}
             />
           </div>
           <Reveal delay={90}>

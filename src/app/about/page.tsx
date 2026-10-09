@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { metadataFor } from "@/lib/page-metadata";
 
 import { PageHero } from "@/components/ui/PageHero";
 import { IndexRule, Section, SectionHead, Wrap } from "@/components/ui/Section";
@@ -13,15 +14,12 @@ import {
   Testimonials,
 } from "@/components/sections/HomeSections";
 import { site } from "@/lib/site";
+import * as copy from "@/lib/copy";
+import { absoluteUrl, serialiseJsonLd } from "@/lib/schema";
 import { aboutStory, achievements } from "@/content/site-content";
 import { galleryImages } from "@/content/media";
 
-export const metadata: Metadata = {
-  title: "Anjana Bhargavi | Acupuncture Therapist in Chikkadpally",
-  description:
-    "Anjana Bhargavi, a leading acupuncture therapist in Chikkadpally, offers expert holistic treatments at Bhargavi Health World. Restore balance and well-being with natural therapies in Hyderabad.",
-  alternates: { canonical: "/about" },
-};
+export const metadata: Metadata = metadataFor("about");
 
 const philosophy = [
   {
@@ -44,7 +42,7 @@ const personSchema = {
   name: site.founder.name,
   jobTitle: site.founder.role,
   worksFor: { "@type": "MedicalClinic", name: site.name },
-  image: `${site.url}${site.founder.photo}`,
+  image: absoluteUrl(site.url, site.founder.photo),
   description: aboutStory[0],
 };
 
@@ -53,7 +51,7 @@ export default function AboutPage() {
     <>
       <PageHero
         breadcrumb={[{ label: "Home", href: "/" }, { label: "About" }]}
-        label="Our founder"
+        label={copy.text("about", "hero", "label")}
         title={
           <>
             {site.founder.honorific} <span className="italic">Anjana</span>{" "}
@@ -85,8 +83,8 @@ export default function AboutPage() {
           <div>
             <SectionHead
               align="left"
-              label="Her story"
-              title="The brain child behind Bhargavi Health World"
+              label={copy.text("about", "story", "label")}
+              title={copy.text("about", "story", "title")}
             />
             <div className="prose mt-block">
               {aboutStory.map((para, i) => (
@@ -100,16 +98,22 @@ export default function AboutPage() {
               <figure className="mt-block border-t border-line pt-block">
                 <Seed className="text-[1.4rem] text-olive" />
                 <blockquote className="mt-stack max-w-[22ch] font-display text-h2 leading-[1.15] text-ink">
-                  “The only way to do great work is to love what you do.”
+                  {copy.extra("about", "story", "pullQuote")}
                 </blockquote>
                 <figcaption className="mt-stack text-small text-muted">
-                  The belief the clinic was built on
+                  {copy.extra("about", "story", "pullQuoteCaption")}
                 </figcaption>
               </figure>
             </Reveal>
 
             <Reveal delay={260}>
-              <ButtonLink href="/contact" size="lg" className="mt-block">
+              {/* The label tracks the founder's first name, so it stays an
+                  expression (D-040); only the destination is stored. */}
+              <ButtonLink
+                href={copy.destination("about", "story")}
+                size="lg"
+                className="mt-block"
+              >
                 Consult with {site.founder.name.split(" ")[0]}
               </ButtonLink>
             </Reveal>
@@ -125,9 +129,9 @@ export default function AboutPage() {
         <Wrap>
           <SectionHead
             invert
-            label="Recognition"
-            title="Some key achievements"
-            lead="Beyond the clinic, her work extends into lecturing, NGO service and community health."
+            label={copy.text("about", "achievements", "label")}
+            title={copy.text("about", "achievements", "title")}
+            lead={copy.text("about", "achievements", "lead")}
           />
           <ol className="mt-block border-t border-ivory/15">
             {achievements.map((item, i) => (
@@ -145,7 +149,10 @@ export default function AboutPage() {
       {/* Philosophy */}
       <Section tone="ivory">
         <Wrap>
-          <SectionHead label="Our philosophy" title="Three things we hold to" />
+          <SectionHead
+            label={copy.text("about", "philosophy", "label")}
+            title={copy.text("about", "philosophy", "title")}
+          />
           <div className="mt-block grid gap-block lg:grid-cols-3">
             {philosophy.map((item, i) => (
               <Reveal key={item.title} delay={i * 90}>
@@ -170,9 +177,9 @@ export default function AboutPage() {
       <Section tone="sand">
         <Wrap>
           <SectionHead
-            label="The space"
-            title="Where treatment happens"
-            lead="Clean, private treatment rooms in Chikkadpally — a two-minute walk from Metro Pillar 1115."
+            label={copy.text("about", "theSpace", "label")}
+            title={copy.text("about", "theSpace", "title")}
+            lead={copy.text("about", "theSpace", "lead")}
           />
           <div className="mt-block grid gap-gutter sm:grid-cols-2 lg:grid-cols-4">
             {galleryImages.slice(0, 4).map((img, i) => (
@@ -196,7 +203,7 @@ export default function AboutPage() {
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
+        dangerouslySetInnerHTML={{ __html: serialiseJsonLd(personSchema) }}
       />
     </>
   );

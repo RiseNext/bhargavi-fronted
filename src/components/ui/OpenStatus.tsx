@@ -2,17 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
+import { earliestOpening, openWindows } from "@/lib/hours";
 
 /**
  * Live "are they open right now" badge, evaluated in the clinic's timezone
  * rather than the visitor's — someone checking from another state should see
  * whether Chikkadpally is open, not their own local hours.
  *
- * Mirrors `site.hours`. Keep the two in step if the hours ever change.
+ * 🔴 The windows come from the generated hours (D-028), not from a constant
+ * here. This file used to carry its own copy with a comment asking whoever
+ * changed the hours to keep the two in step — which meant an admin edit moved
+ * the footer and left this badge telling visitors the wrong thing.
  */
-const WINDOWS = [
-  { from: 9 * 60, to: 21 * 60, opens: "9:00 AM", closes: "9:00 PM" },
-];
 
 type State = { open: boolean; detail: string };
 
@@ -31,13 +32,13 @@ function clinicNow() {
 function evaluate(): State {
   const { minutes } = clinicNow();
 
-  const current = WINDOWS.find((w) => minutes >= w.from && minutes < w.to);
+  const current = openWindows.find((w) => minutes >= w.from && minutes < w.to);
   if (current) return { open: true, detail: `Open until ${current.closes}` };
 
-  const next = WINDOWS.find((w) => minutes < w.from);
+  const next = openWindows.find((w) => minutes < w.from);
   if (next) return { open: false, detail: `Opens at ${next.opens}` };
 
-  return { open: false, detail: "Opens tomorrow, 9:00 AM" };
+  return { open: false, detail: `Opens tomorrow, ${earliestOpening}` };
 }
 
 export function OpenStatus({ className }: { className?: string }) {

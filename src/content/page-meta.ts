@@ -71,4 +71,4 @@ export const pageMeta: Record<string, PageMetaEntry> = {
 export const metaForPage = (page: string): PageMetaEntry => pageMeta[page] ?? {};
 
 /** 🔴 SEO-01 — newest content change, for sitemap.xml's static routes. */
-export const contentUpdatedAt = "2026-10-09T11:17:43.081Z";
+export const contentUpdatedAt = "2026-10-09T15:46:11.210Z";

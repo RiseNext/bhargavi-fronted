@@ -4,7 +4,7 @@ import { PageHero } from "@/components/ui/PageHero";
 import { Section, Wrap } from "@/components/ui/Section";
 import { Frame } from "@/components/ui/Media";
 import { CtaBand } from "@/components/sections/HomeSections";
-import { posts, postBySlug } from "@/content/posts";
+import { getPostBySlug, getPosts } from "@/lib/content";
 import { site } from "@/lib/site";
 import { blogPosting, serialiseJsonLd } from "@/lib/schema";
 import { PostBlocks } from "./PostBlocks";
@@ -22,10 +22,21 @@ import { PostBlocks } from "./PostBlocks";
  * `status = 'published'`, so a draft has no page here and no entry in the
  * listing or the sitemap.
  */
-export const dynamicParams = false;
+/*
+ * 🔴 `true` since D-042, changed from `false`.
+ *
+ * Tag revalidation re-renders paths that already exist; it cannot ADD one.
+ * With `false`, a post published through the admin panel would 404 until the
+ * next deployment — the exact coupling this migration removes. The original
+ * justification for `false` was that every link comes from the same array
+ * `generateStaticParams` reads, which is still true, so allowing an unknown
+ * slug to render on demand costs nothing and `notFound()` still handles a slug
+ * that genuinely is not published.
+ */
+export const dynamicParams = true;
 
-export function generateStaticParams(): Array<{ slug: string }> {
-  return posts.map((p) => ({ slug: p.slug }));
+export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
+  return (await getPosts()).map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
@@ -34,7 +45,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = postBySlug(slug);
+  const post = await getPostBySlug(slug);
   if (!post) return {};
 
   // Admin-supplied SEO text wins; otherwise the post's own title and excerpt,
@@ -59,7 +70,7 @@ export default async function PostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = postBySlug(slug);
+  const post = await getPostBySlug(slug);
   if (!post) notFound();
 
   // Returns undefined when there is no publication date, rather than inventing

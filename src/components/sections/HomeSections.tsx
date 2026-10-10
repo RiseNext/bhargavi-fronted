@@ -14,16 +14,26 @@ import { VideoCard } from "@/components/cards/VideoCard";
 import { AppointmentForm } from "@/components/forms/AppointmentForm";
 
 import { site } from "@/lib/site";
-import { services } from "@/content/services";
-import { featuredTestimonials, testimonials } from "@/content/testimonials";
-import { featuredVideos, galleryImages } from "@/content/media";
 import {
-  faqs,
-  homeIntro,
-  process,
-  stats,
-  whyChooseUs,
-} from "@/content/site-content";
+  getFaqs,
+  getFeaturedTestimonials,
+  getFeaturedVideos,
+  getGalleryImages,
+  getProcess,
+  getServices,
+  getStats,
+  getTestimonials,
+  getWhyChooseUs,
+} from "@/lib/content";
+/*
+ * ⚠ `homeIntro` stays a STATIC import, deliberately.
+ *
+ * It is code-owned prose (the generator's PENDING_CMS_PROSE), not a CMS
+ * collection — there is no `content_blocks` row behind it yet, so there is no
+ * tag that could revalidate it. Importing it from the generated module is
+ * correct until it gets a CMS home (tranche 2).
+ */
+import { homeIntro } from "@/content/site-content";
 import * as copy from "@/lib/copy";
 
 /* ================================================================
@@ -125,7 +135,8 @@ export function Intro() {
    Therapies — editorial index rows
    ================================================================ */
 
-export function TherapyIndex() {
+export async function TherapyIndex() {
+  const services = await getServices();
   return (
     <Section tone="paper" id="therapies" className="overflow-clip">
       <Wrap>
@@ -160,7 +171,8 @@ export function TherapyIndex() {
    Stats
    ================================================================ */
 
-export function StatsBand() {
+export async function StatsBand() {
+  const stats = await getStats();
   return (
     <Section tone="ivory" className="py-block">
       <Wrap>
@@ -192,7 +204,8 @@ export function StatsBand() {
    Why us — bento
    ================================================================ */
 
-export function WhyUs() {
+export async function WhyUs() {
+  const whyChooseUs = await getWhyChooseUs();
   return (
     <Section tone="ivory">
       <Wrap>
@@ -254,7 +267,8 @@ export function WhyUs() {
    Process
    ================================================================ */
 
-export function ProcessSteps() {
+export async function ProcessSteps() {
+  const process = await getProcess();
   return (
     <Section tone="paper">
       <Wrap>
@@ -308,7 +322,11 @@ export function ProcessSteps() {
    Testimonials — feature quote + rail
    ================================================================ */
 
-export function Testimonials() {
+export async function Testimonials() {
+  const [testimonials, featuredTestimonials] = await Promise.all([
+    getTestimonials(),
+    getFeaturedTestimonials(),
+  ]);
   return (
     <Section tone="ivory" className="overflow-clip">
       <Wrap>
@@ -351,7 +369,9 @@ export function Testimonials() {
    Appointment
    ================================================================ */
 
-export function AppointmentBand() {
+export async function AppointmentBand() {
+  const services = await getServices();
+
   /**
    * The three contact rows. Only the LABELS are stored — every value and href
    * is a live expression (`site.phones[0]`, `site.whatsapp.href`,
@@ -423,7 +443,7 @@ export function AppointmentBand() {
               {copy.noteWithRequiredGlyph("home", "appointmentBand", "formCardNote")}
             </p>
             <div className="mt-block">
-              <AppointmentForm />
+              <AppointmentForm services={services} />
             </div>
           </div>
         </Reveal>
@@ -436,7 +456,8 @@ export function AppointmentBand() {
    Health talks
    ================================================================ */
 
-export function HealthTalks() {
+export async function HealthTalks() {
+  const featuredVideos = await getFeaturedVideos();
   return (
     <Section tone="sand">
       <Wrap>
@@ -469,7 +490,8 @@ export function HealthTalks() {
    Gallery rail
    ================================================================ */
 
-export function GalleryRail() {
+export async function GalleryRail() {
+  const galleryImages = await getGalleryImages();
   return (
     <Section tone="sand" className="overflow-clip">
       <Wrap>
@@ -506,7 +528,8 @@ export function GalleryRail() {
    FAQ
    ================================================================ */
 
-export function FaqSection() {
+export async function FaqSection() {
+  const faqs = await getFaqs();
   return (
     <Section tone="ivory">
       <Wrap className="grid gap-block lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">

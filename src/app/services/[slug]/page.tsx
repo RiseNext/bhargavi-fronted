@@ -11,7 +11,7 @@ import { ServiceCard } from "@/components/cards/ServiceCard";
 import { AppointmentForm } from "@/components/forms/AppointmentForm";
 import { whatsappUrl } from "@/lib/whatsapp";
 import { CtaBand } from "@/components/sections/HomeSections";
-import { services, serviceBySlug } from "@/content/services";
+import { getServiceBySlug, getServices } from "@/lib/content";
 import { site } from "@/lib/site";
 import { breadcrumbList, serialiseJsonLd } from "@/lib/schema";
 import { hoursShort } from "@/lib/hours";
@@ -34,13 +34,15 @@ const metaLabel = (index: number): string =>
     `serviceDetail.metaRow.items[${String(index)}]`,
   );
 
-export function generateStaticParams() {
-  return services.map((s) => ({ slug: s.slug }));
+export async function generateStaticParams() {
+  // Prerenders the published set. `dynamicParams` stays at its default (true),
+  // so a service added after this build renders on demand rather than 404ing.
+  return (await getServices()).map((s) => ({ slug: s.slug }));
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
-  const service = serviceBySlug(slug);
+  const service = await getServiceBySlug(slug);
   if (!service) return {};
 
   return {
@@ -53,7 +55,9 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 export default async function ServiceDetailPage({ params }: Params) {
   const { slug } = await params;
-  const service = serviceBySlug(slug);
+  const [service, services] = await Promise.all([getServiceBySlug(slug), getServices()]);
+  // 🔴 An unpublished service is absent from the reader, so revalidating the
+  // `services` tag turns its prerendered page into a genuine 404.
   if (!service) notFound();
 
   const related = services.filter((s) => s.slug !== service.slug).slice(0, 3);
@@ -202,7 +206,7 @@ export default async function ServiceDetailPage({ params }: Params) {
                   {copy.extra("serviceDetail", "bookingAside", "note")}
                 </p>
                 <div className="mt-block">
-                  <AppointmentForm defaultService={service.slug} compact />
+                  <AppointmentForm services={services} defaultService={service.slug} compact />
                 </div>
               </div>
 

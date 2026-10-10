@@ -3,16 +3,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Field, FileField, FormStatus, Honeypot, Select, TextArea } from "./fields";
-import { jobs } from "@/content/careers";
+import type { Job } from "@/content/careers";
 import { site } from "@/lib/site";
 
 type State = "idle" | "sending" | "sent" | "error";
 type ResumeMethod = "upload" | "email";
 
-const roleOptions = [
-  ...jobs.map((j) => ({ value: j.title, label: j.title })),
-  { value: "General application", label: "General application" },
-];
+/* Built from the `jobs` prop inside the component — see `CareerForm`. */
 
 /** D-008 — both routes are supported, and the applicant chooses. */
 const methodOptions = [
@@ -29,7 +26,25 @@ function formatOf(file: File): (typeof FORMATS)[number] | undefined {
   return FORMATS.find((f) => f === ext);
 }
 
-export function CareerForm({ role }: { role?: string }) {
+export function CareerForm({
+  role,
+  jobs,
+}: {
+  role?: string;
+  jobs: readonly Job[];
+}) {
+  /*
+   * 🔴 Was a module-scope constant from a static import.
+   *
+   * ⚠ D-030 is unaffected and must stay so: the role list is resolved from a
+   * prop that is already in memory, so nothing async is introduced before the
+   * synchronous `window.open` in the sibling WhatsApp flows.
+   */
+  const roleOptions = [
+    ...jobs.map((j) => ({ value: j.title, label: j.title })),
+    { value: "General application", label: "General application" },
+  ];
+
   const [state, setState] = useState<State>("idle");
   const [method, setMethod] = useState<ResumeMethod>("upload");
   const [file, setFile] = useState<File | undefined>();

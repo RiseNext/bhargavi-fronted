@@ -9,6 +9,7 @@ import { CtaBand } from "@/components/sections/HomeSections";
 import { CareerForm } from "@/components/forms/CareerForm";
 import { JobOpenings } from "@/components/careers/JobOpenings";
 import { site } from "@/lib/site";
+import { getJobs } from "@/lib/content";
 import * as copy from "@/lib/copy";
 
 export const metadata: Metadata = metadataFor("careers");
@@ -17,7 +18,9 @@ const mailtoHref = `mailto:${site.email}?subject=${encodeURIComponent(
   "Job application — Bhargavi Health World",
 )}`;
 
-export default function CareersPage() {
+export default async function CareersPage() {
+  const jobs = await getJobs();
+
   return (
     <>
       {/* Open roles — doubles as the page header (no separate hero). */}
@@ -46,7 +49,7 @@ export default function CareersPage() {
               </p>
             </Reveal>
           </div>
-          <JobOpenings />
+          <JobOpenings jobs={jobs} />
         </Wrap>
       </Section>
 
@@ -120,7 +123,7 @@ export default function CareersPage() {
           </div>
 
           <Reveal delay={160}>
-            <CareerForm role={copy.extra("careers", "apply", "formRoleDefault")} />
+            <CareerForm role={copy.extra("careers", "apply", "formRoleDefault")} jobs={jobs} />
           </Reveal>
         </Wrap>
       </Section>

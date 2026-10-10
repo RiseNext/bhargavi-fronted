@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { CareerForm } from "@/components/forms/CareerForm";
-import { jobs, type Job } from "@/content/careers";
+import type { Job } from "@/content/careers";
 import * as copy from "@/lib/copy";
 
 /**
@@ -12,7 +12,7 @@ import * as copy from "@/lib/copy";
  * preselected. Mirrors the Lightbox dialog conventions (scroll lock,
  * Escape, backdrop click).
  */
-export function JobOpenings() {
+export function JobOpenings({ jobs }: { jobs: readonly Job[] }) {
   const [active, setActive] = useState<Job | null>(null);
   const close = useCallback(() => setActive(null), []);
 
@@ -143,7 +143,7 @@ export function JobOpenings() {
             </div>
 
             <div className="overflow-y-auto overscroll-contain p-[clamp(1.1rem,0.9rem+1vw,2rem)] pb-[max(1.1rem,env(safe-area-inset-bottom))]">
-              <CareerForm role={active.title} />
+              <CareerForm role={active.title} jobs={jobs} />
             </div>
           </div>
         </div>

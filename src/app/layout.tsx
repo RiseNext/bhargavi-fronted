@@ -7,6 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import { FloatingActions } from "@/components/layout/FloatingActions";
 import { Preloader } from "@/components/layout/Preloader";
 import { site } from "@/lib/site";
+import { getServices } from "@/lib/content";
 import { openingHoursSpecification } from "@/lib/hours";
 import { absoluteUrl, serialiseJsonLd } from "@/lib/schema";
 
@@ -90,14 +91,19 @@ const businessSchema = {
   sameAs: site.socials.map((s) => s.href),
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // 🔴 The ONE runtime read in the root layout: `Header`'s services dropdown.
+  // Cached and tagged, so this is a single shared fetch, not one per page, and
+  // the layout stays prerendered.
+  const services = await getServices();
+
   return (
     <html lang="en-IN" className={`${fraunces.variable} ${jakarta.variable}`}>
       <body>
         <Preloader />
-        <Header />
+        <Header services={services} />
         <main id="main">{children}</main>
         <Footer />
         <FloatingActions />

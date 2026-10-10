@@ -9,7 +9,8 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Rings } from "@/components/ui/Decor";
 import { Frame } from "@/components/ui/Media";
 import { CtaBand } from "@/components/sections/HomeSections";
-import { posts } from "@/content/posts";
+import { getPosts } from "@/lib/content";
+import type { Post } from "@/content/posts";
 import * as copy from "@/lib/copy";
 
 export const metadata: Metadata = metadataFor("blog");
@@ -28,7 +29,8 @@ export const metadata: Metadata = metadataFor("blog");
  * `PageHero` and `<CtaBand />` sit OUTSIDE the branch for the same reason: they
  * render identically either way, so they must not move inside a conditional.
  */
-export default function BlogPage() {
+export default async function BlogPage() {
+  const posts = await getPosts();
   return (
     <>
       <PageHero
@@ -38,7 +40,7 @@ export default function BlogPage() {
         lead={copy.text("blog", "hero", "lead")}
       />
 
-      {posts.length === 0 ? <ComingSoon /> : <PostList />}
+      {posts.length === 0 ? <ComingSoon /> : <PostList posts={posts} />}
 
       <CtaBand />
     </>
@@ -92,7 +94,7 @@ function ComingSoon() {
  * `cover` and `readingMinutes` are both commonly null: the latter is an
  * admin-supplied field, not a computed one.
  */
-function PostList() {
+function PostList({ posts }: { posts: readonly Post[] }) {
   return (
     <Section tone="ivory" className="overflow-clip">
       <Rings className="absolute -right-[10%] top-1/2 w-[min(24rem,45vw)] -translate-y-1/2 text-line" />

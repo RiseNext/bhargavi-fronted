@@ -7,13 +7,14 @@ import { Reveal } from "@/components/ui/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
 import { VideoCard } from "@/components/cards/VideoCard";
 import { CtaBand } from "@/components/sections/HomeSections";
-import { videos } from "@/content/media";
+import { getVideos } from "@/lib/content";
 import { site } from "@/lib/site";
 import * as copy from "@/lib/copy";
 
 export const metadata: Metadata = metadataFor("videos");
 
-export default function VideosPage() {
+export default async function VideosPage() {
+  const videos = await getVideos();
   const youtube = site.socials.find((s) => s.name === "YouTube")!;
 
   return (

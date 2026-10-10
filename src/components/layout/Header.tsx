@@ -6,23 +6,27 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { nav, site, type NavChild } from "@/lib/site";
-import { services } from "@/content/services";
+import type { Service } from "@/content/services";
 
 /**
  * Titles only. The durations read as a ragged second column here — they belong
  * on the service card, not in a ten-row menu.
  */
-const servicesMenu: NavChild[] = services.map((s) => ({
-  label: s.title,
-  href: `/services/${s.slug}`,
-}));
+/* Derived from the `services` prop inside the component — see `Header`. */
 
 /** Ignore scroll jitter below this many pixels before flipping direction. */
 const DIR_THRESHOLD = 6;
 /** Keep the bar pinned over the hero — only hide once past this depth. */
 const HIDE_AFTER = 160;
 
-export function Header() {
+export function Header({ services }: { services: readonly Service[] }) {
+  // 🔴 Was a module-scope constant built from a static import. The root layout
+  // now awaits `getServices()` and passes it, so the dropdown follows the CMS.
+  const servicesMenu: NavChild[] = services.map((s) => ({
+    label: s.title,
+    href: `/services/${s.slug}`,
+  }));
+
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);

@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Field, FormStatus, Honeypot, Select, TextArea } from "./fields";
-import { services } from "@/content/services";
+import type { Service } from "@/content/services";
 import { site } from "@/lib/site";
 import { formatDateTime, whatsappUrl } from "@/lib/whatsapp";
 
@@ -22,9 +22,11 @@ type Branch = (typeof site.branches)[number];
  * delivery path.
  */
 export function AppointmentForm({
+  services,
   defaultService = "",
   compact = false,
 }: {
+  services: readonly Service[];
   defaultService?: string;
   compact?: boolean;
 }) {

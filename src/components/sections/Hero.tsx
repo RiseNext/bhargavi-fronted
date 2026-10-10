@@ -3,8 +3,7 @@ import { Frame } from "@/components/ui/Media";
 import { Arc, Seed } from "@/components/ui/Decor";
 import { Reveal, Wipe } from "@/components/ui/Reveal";
 import { site } from "@/lib/site";
-import { services } from "@/content/services";
-import { stats } from "@/content/site-content";
+import { getServices, getStats } from "@/lib/content";
 import * as copy from "@/lib/copy";
 
 /**
@@ -39,11 +38,16 @@ const heroCta2 = copy.action("home", "hero", "cta2");
  * replaces, which is what D-010 requires: the data source changes, the website
  * does not.
  */
-const heroStats = stats
-  .filter((s) => s.showInHero)
-  .map((s) => ({ k: `${String(s.value)}${s.suffix}`, v: s.heroLabel ?? s.label }));
+/* Resolution rule lives here; the data is awaited inside `Hero` (D-042). */
 
-export function Hero() {
+export async function Hero() {
+  const [services, stats] = await Promise.all([getServices(), getStats()]);
+
+  // ✅ D-023 — `showInHero` selects the rows, `heroLabel ?? label` is the rule.
+  const heroStats = stats
+    .filter((s) => s.showInHero)
+    .map((s) => ({ k: `${String(s.value)}${s.suffix}`, v: s.heroLabel ?? s.label }));
+
   return (
     <section className="relative overflow-clip pb-block pt-[calc(var(--spacing-nav)+var(--spacing-block))]">
       <Arc className="absolute -right-[12%] -top-[8%] w-[min(46rem,70vw)] text-line" />

@@ -12,7 +12,8 @@
     "prebuild": "node scripts/generate-content.mjs",
     "generate:content": "node scripts/generate-content.mjs",
     "verify:content": "node scripts/generate-content.mjs --dry-run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "e2e:revalidation": "node scripts/e2e-revalidation.mjs"
   },
   "dependencies": {
     "next": "15.5.26",

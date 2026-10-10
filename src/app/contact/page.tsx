@@ -11,7 +11,7 @@ import { AppointmentForm } from "@/components/forms/AppointmentForm";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { site } from "@/lib/site";
 import * as copy from "@/lib/copy";
-import { faqs } from "@/content/site-content";
+import { getFaqs, getServices } from "@/lib/content";
 
 export const metadata: Metadata = metadataFor("contact");
 
@@ -115,7 +115,8 @@ function CardIconMark({ name }: { name: CardIcon }) {
   );
 }
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const [faqs, services] = await Promise.all([getFaqs(), getServices()]);
   return (
     <>
       <PageHero
@@ -226,7 +227,7 @@ export default function ContactPage() {
             />
             <Reveal delay={110}>
               <div className="mt-block rounded-xl bg-paper p-[clamp(1.25rem,0.9rem+1.8vw,2.5rem)]">
-                <AppointmentForm />
+                <AppointmentForm services={services} />
               </div>
             </Reveal>
           </div>

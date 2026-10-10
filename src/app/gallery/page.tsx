@@ -5,12 +5,13 @@ import { PageHero } from "@/components/ui/PageHero";
 import { Section, Wrap } from "@/components/ui/Section";
 import { GalleryLightbox } from "@/components/ui/Lightbox";
 import { CtaBand } from "@/components/sections/HomeSections";
-import { galleryImages } from "@/content/media";
+import { getGalleryImages } from "@/lib/content";
 import * as copy from "@/lib/copy";
 
 export const metadata: Metadata = metadataFor("gallery");
 
-export default function GalleryPage() {
+export default async function GalleryPage() {
+  const galleryImages = await getGalleryImages();
   return (
     <>
       <PageHero

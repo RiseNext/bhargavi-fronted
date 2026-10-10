@@ -16,8 +16,12 @@ import {
 import { site } from "@/lib/site";
 import * as copy from "@/lib/copy";
 import { absoluteUrl, serialiseJsonLd } from "@/lib/schema";
-import { aboutStory, achievements, philosophy } from "@/content/site-content";
-import { galleryImages } from "@/content/media";
+import {
+  getAboutStory,
+  getAchievements,
+  getGalleryImages,
+  getPhilosophy,
+} from "@/lib/content";
 
 export const metadata: Metadata = metadataFor("about");
 
@@ -39,10 +43,27 @@ const personSchema = {
   jobTitle: site.founder.role,
   worksFor: { "@type": "MedicalClinic", name: site.name },
   image: absoluteUrl(site.url, site.founder.photo),
-  description: aboutStory[0],
+  // `description` is attached inside the component — see below.
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const [aboutStory, achievements, philosophy, galleryImages] = await Promise.all([
+    getAboutStory(),
+    getAchievements(),
+    getPhilosophy(),
+    getGalleryImages(),
+  ]);
+
+  /*
+   * 🔴 `description` moved out of the module-scope constant.
+   *
+   * It is the founder's opening paragraph, which is admin-managed
+   * (`about_story`). Leaving it baked in would publish a `Person` description
+   * that no longer matched the prose rendered a few hundred pixels below it,
+   * and structured data that contradicts the page is worse than none.
+   */
+  const personSchemaWithDescription = { ...personSchema, description: aboutStory[0] };
+
   return (
     <>
       <PageHero
@@ -199,7 +220,7 @@ export default function AboutPage() {
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: serialiseJsonLd(personSchema) }}
+        dangerouslySetInnerHTML={{ __html: serialiseJsonLd(personSchemaWithDescription) }}
       />
     </>
   );

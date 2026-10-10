@@ -7,11 +7,12 @@ import { Section, Wrap } from "@/components/ui/Section";
 import { Reveal } from "@/components/ui/Reveal";
 import { TestimonialCard } from "@/components/cards/TestimonialCard";
 import { CtaBand } from "@/components/sections/HomeSections";
-import { testimonials } from "@/content/testimonials";
+import { getTestimonials } from "@/lib/content";
 
 export const metadata: Metadata = metadataFor("testimonials");
 
-export default function TestimonialsPage() {
+export default async function TestimonialsPage() {
+  const testimonials = await getTestimonials();
   return (
     <>
       <PageHero

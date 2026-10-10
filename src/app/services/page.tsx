@@ -8,12 +8,13 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Accordion } from "@/components/ui/Accordion";
 import { ServiceCard } from "@/components/cards/ServiceCard";
 import { CtaBand, ProcessSteps } from "@/components/sections/HomeSections";
-import { services } from "@/content/services";
-import { faqs } from "@/content/site-content";
+import { getServices, getFaqs } from "@/lib/content";
 
 export const metadata: Metadata = metadataFor("services");
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const services = await getServices();
+  const faqs = await getFaqs();
   return (
     <>
       {/* Compact on purpose — the therapies are the content, so the grid

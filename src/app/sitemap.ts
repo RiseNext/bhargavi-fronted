@@ -1,8 +1,14 @@
 import type { MetadataRoute } from "next";
 import { site } from "@/lib/site";
-import { services } from "@/content/services";
+import { getPosts, getServices } from "@/lib/content";
+/*
+ * ⚠ `privacyPublished` and `contentUpdatedAt` stay STATIC — they come from
+ * `content_blocks` and `page_meta`, which are tranche 2. The consequence is
+ * narrow and worth stating: every URL below is correct and fresh, but the
+ * `lastModified` stamp for the STATIC routes lags until the next deployment.
+ * Per-service and per-post stamps come from their own rows and are fresh.
+ */
 import { privacyPublished } from "@/content/page-copy";
-import { posts } from "@/content/posts";
 import { contentUpdatedAt } from "@/content/page-meta";
 
 /**
@@ -25,7 +31,9 @@ import { contentUpdatedAt } from "@/content/page-meta";
  * content_blocks, site_settings and the founder's details at once — so a
  * site-wide maximum is the honest answer rather than a fabricated per-page one.
  */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const [services, posts] = await Promise.all([getServices(), getPosts()]);
+
   const contentChanged = new Date(contentUpdatedAt);
   const staticRoutes = [
     { path: "", priority: 1 },

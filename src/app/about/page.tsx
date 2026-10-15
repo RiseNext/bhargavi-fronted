@@ -36,6 +36,44 @@ export const metadata: Metadata = metadataFor("about");
  * currently agrees is indistinguishable from a working wire-up until the first
  * edit, and the first edit is the worst moment to find out. */
 
+/**
+ * The founder's credentials as `hasCredential`, one node per qualification.
+ *
+ * `qualifications` is a single admin-entered string — "BA, B.Ed, MA, Diploma in
+ * Acupuncture" — so it is split on commas. Schema.org models a credential as an
+ * `EducationalOccupationalCredential`, not a sentence, and emitting four nodes
+ * rather than one lets a consumer read them individually.
+ *
+ * ⚠ Deliberately NOT written into `description`. That is what the orphaned
+ * `person()` helper does (`schema.ts:261`), and it is wrong twice over: it
+ * conflates credentials with a biography, and `description` on this page is
+ * already the founder's opening story paragraph, which is better content for
+ * it. Both are kept, in their correct properties.
+ *
+ * Returns `undefined` when the field is empty, so an unset value emits nothing
+ * rather than an empty node — `null` means unknown and renders nothing
+ * (CLAUDE.md §8).
+ */
+function credentialNodes(qualifications: string | undefined) {
+  const parts = (qualifications ?? "")
+    .split(",")
+    .map((q) => q.trim())
+    .filter(Boolean);
+  if (parts.length === 0) return undefined;
+  return parts.map((q) => ({
+    "@type": "EducationalOccupationalCredential",
+    name: q,
+  }));
+}
+
+/*
+ * The heading renders the first name in italics and the remainder plain, so the
+ * two halves are split once here rather than inline in the JSX. `rest` is empty
+ * for a single-word name, and the heading omits the trailing space in that case.
+ */
+const founderFirstName = site.founder.name.split(" ")[0] ?? site.founder.name;
+const founderRestOfName = site.founder.name.split(" ").slice(1).join(" ");
+
 const personSchema = {
   "@context": "https://schema.org",
   "@type": "Person",
@@ -43,6 +81,9 @@ const personSchema = {
   jobTitle: site.founder.role,
   worksFor: { "@type": "MedicalClinic", name: site.name },
   image: absoluteUrl(site.url, site.founder.photo),
+  ...(credentialNodes(site.founder.qualifications) === undefined
+    ? {}
+    : { hasCredential: credentialNodes(site.founder.qualifications) }),
   // `description` is attached inside the component — see below.
 };
 
@@ -70,12 +111,52 @@ export default async function AboutPage() {
         breadcrumb={[{ label: "Home", href: "/" }, { label: "About" }]}
         label={copy.text("about", "hero", "label")}
         title={
+          /*
+           * Derived from `site.founder.name`, which was already the source for
+           * the honorific, the photo alt and the "Consult with …" CTA on this
+           * same page — the first and last name were the only two fragments
+           * still hardcoded, so editing the founder's name in the admin panel
+           * would have changed four surfaces and left the page heading alone.
+           *
+           * The italic on the first word is preserved exactly. Verified
+           * text-identical before the change: name is "Anjana Bhargavi", so
+           * first="Anjana" and rest="Bhargavi" reproduce the previous markup
+           * character for character.
+           */
           <>
-            {site.founder.honorific} <span className="italic">Anjana</span>{" "}
-            Bhargavi
+            {site.founder.honorific}{" "}
+            <span className="italic">{founderFirstName}</span>
+            {founderRestOfName && <> {founderRestOfName}</>}
           </>
         }
-        lead={site.founder.role}
+        lead={
+          <>
+            {site.founder.role}
+            {site.founder.qualifications && (
+              /*
+               * 🔴 The founder's qualifications had NO consumer anywhere.
+               *
+               * The field is admin-editable, validated, stored, served by the
+               * API and emitted into `site.founder.qualifications` — and the
+               * only reference to it in the whole frontend was inside
+               * `schema.ts`'s `person()` helper, which nothing calls. So an
+               * administrator could edit a clinician's credentials and no
+               * visitor would ever see the change, which for a medical
+               * practice is the one category of content that most needs to be
+               * visible and correct.
+               *
+               * `<span className="block">` rather than a second `<p>`:
+               * `PageHero` already wraps `lead` in a `<p>`, and a nested `<p>`
+               * is invalid HTML that browsers silently restructure. The type
+               * tokens are the small-caps label pairing already used by the
+               * statistics band, so this introduces no new typography.
+               */
+              <span className="mt-2 block text-label uppercase tracking-[0.16em]">
+                {site.founder.qualifications}
+              </span>
+            )}
+          </>
+        }
       />
 
       {/* Story */}

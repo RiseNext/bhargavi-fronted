@@ -27,7 +27,7 @@
  */
 
 import { spawn } from "node:child_process";
-import { rmSync } from "node:fs";
+import { readFileSync, rmSync } from "node:fs";
 import { createServer } from "node:http";
 import { setTimeout as sleep } from "node:timers/promises";
 
@@ -398,6 +398,49 @@ try {
   const withdrawn = await page("/services/e2e-service");
   check(withdrawn.status === 404,
     "🔴 an unpublished service's prerendered page becomes a 404, not stale content");
+
+  // -- founder fields: rendered-HTML regression ----------------------------
+  //
+  // 🔴 `site.founder.qualifications` was admin-editable, validated, stored,
+  // served and generated — and read by NOTHING. Its only reference was inside
+  // `schema.ts`'s `person()` helper, which nothing calls, so an administrator
+  // could correct a clinician's credentials and no visitor would ever see it.
+  // For a medical practice that is the worst field to silently drop.
+  //
+  // Asserted against REAL rendered HTML, not source. `site.*` is still
+  // build-time (tranche 3), so these values come from the committed
+  // `src/lib/site.ts` rather than the mock — which is exactly the surface a
+  // visitor gets.
+  process.stdout.write("\n  founder fields on /about\n");
+  const about = await page("/about");
+  const siteTs = readFileSync(new URL("../src/lib/site.ts", import.meta.url), "utf8");
+  const val = (field) => {
+    const m = new RegExp(`${field}: "([^"]+)"`).exec(siteTs);
+    return m ? m[1] : "";
+  };
+  const quals = val("qualifications");
+  const founderName = val("name");
+  const role = val("role");
+
+  check(quals.length > 0, "the generated site.ts carries founder.qualifications", quals);
+  check(about.html.includes(quals),
+    "🔴 qualifications are VISIBLE in the rendered /about HTML");
+
+  // Structured data: one credential node per comma-separated qualification.
+  const credentials = quals.split(",").map((q) => q.trim()).filter(Boolean);
+  check(about.html.includes("hasCredential"),
+    "Person JSON-LD contains hasCredential");
+  check(
+    credentials.every((c) =>
+      about.html.includes(`{"@type":"EducationalOccupationalCredential","name":"${c}"}`)),
+    `each qualification is its own EducationalOccupationalCredential node (${String(credentials.length)})`);
+
+  // And the fields that must NOT have regressed.
+  check(about.html.includes(founderName) || about.html.includes(founderName.split(" ")[0] ?? ""),
+    "founder name still rendered", founderName);
+  check(about.html.includes(role), "founder role still rendered", role);
+  check(/"description":"[^"]{80,}/.test(about.html),
+    "the story paragraph is still the Person description (not overwritten by credentials)");
 } finally {
   app.kill("SIGKILL");
   mock.close();

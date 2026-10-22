@@ -624,3 +624,80 @@ export function branchMapsHref(branch: ContactBranch): string | undefined {
   if (!branch.address) return undefined;
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(branch.address.full)}`;
 }
+
+// ---------------------------------------------------------------------------
+// The founder — name, role, qualifications, portrait
+// ---------------------------------------------------------------------------
+
+/**
+ * 🔴 WHY THIS IS READ AT RUNTIME, like the contact details above.
+ *
+ * `site.founder` is baked into the generated module at build time, so the
+ * clinician's own credentials — the one category of content a medical
+ * practice most needs to be current and correct — could only change by
+ * redeploying. Both surfaces that show them (the about page heading and the
+ * home hero's portrait chip) now read from here, so they move together the
+ * moment the admin panel publishes, and neither can drift from the other.
+ *
+ * ⚠ SAME ENDPOINT, SAME TAG AS `getContactDetails`. This costs no extra
+ * network call: `getJson` goes through Next's Data Cache keyed by URL, so a
+ * page reading both gets one fetch and one cache entry, invalidated together
+ * by `site-settings`.
+ */
+export type Founder = {
+  name: string;
+  honorific: string;
+  role: string;
+  /** A single admin-entered string, e.g. "BA, B.Ed, MA, Diploma in Acupuncture". */
+  qualifications?: string;
+  photo: string;
+};
+
+type RawFounderSettings = {
+  founder?: {
+    name?: string;
+    honorific?: string;
+    role?: string;
+    qualifications?: string | null;
+    photo?: string;
+  };
+};
+
+export async function getFounder(): Promise<Founder> {
+  const s = await getJson<RawFounderSettings>(
+    "/api/site-settings",
+    CONTENT_TAGS.settings,
+  );
+  const founder = s.founder;
+
+  if (!founder?.name || !founder.photo) {
+    // Loud, for the same reason every other reader here is: the about page is
+    // built around this person, and a blank name with a green build is the
+    // silent-content-loss failure this layer exists to prevent.
+    throw new Error(
+      "GET /api/site-settings returned no usable founder — /about and the home " +
+        "hero both render the founder's name and portrait.",
+    );
+  }
+
+  return {
+    name: founder.name,
+    honorific: founder.honorific ?? "",
+    role: founder.role ?? "",
+    // Empty string and null both mean "not supplied"; callers check for
+    // undefined so an empty credential line never renders.
+    ...(founder.qualifications ? { qualifications: founder.qualifications } : {}),
+    photo: founder.photo,
+  };
+}
+
+/**
+ * The display name split for the about heading's italic first word.
+ *
+ * Here rather than inline so the hero and the about page cannot disagree about
+ * what "first name" means for a given stored name.
+ */
+export function splitFounderName(name: string): { first: string; rest: string } {
+  const parts = name.split(" ");
+  return { first: parts[0] ?? name, rest: parts.slice(1).join(" ") };
+}

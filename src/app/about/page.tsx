@@ -19,8 +19,11 @@ import { absoluteUrl, serialiseJsonLd } from "@/lib/schema";
 import {
   getAboutStory,
   getAchievements,
+  getFounder,
   getGalleryImages,
   getPhilosophy,
+  splitFounderName,
+  type Founder,
 } from "@/lib/content";
 
 export const metadata: Metadata = metadataFor("about");
@@ -66,34 +69,51 @@ function credentialNodes(qualifications: string | undefined) {
   }));
 }
 
-/*
- * The heading renders the first name in italics and the remainder plain, so the
- * two halves are split once here rather than inline in the JSX. `rest` is empty
- * for a single-word name, and the heading omits the trailing space in that case.
+/**
+ * The `Person` node, built from the founder record this page actually renders.
+ *
+ * 🔴 BUILT PER REQUEST, not at module scope. It read `site.founder` — the
+ * module generated at BUILD time — so an administrator correcting a
+ * credential changed the visible heading only once somebody redeployed, and
+ * until then the structured data and the page agreed with each other but not
+ * with the database. Structured data that contradicts the record is worse
+ * than none.
  */
-const founderFirstName = site.founder.name.split(" ")[0] ?? site.founder.name;
-const founderRestOfName = site.founder.name.split(" ").slice(1).join(" ");
-
-const personSchema = {
-  "@context": "https://schema.org",
-  "@type": "Person",
-  name: site.founder.name,
-  jobTitle: site.founder.role,
-  worksFor: { "@type": "MedicalClinic", name: site.name },
-  image: absoluteUrl(site.url, site.founder.photo),
-  ...(credentialNodes(site.founder.qualifications) === undefined
-    ? {}
-    : { hasCredential: credentialNodes(site.founder.qualifications) }),
-  // `description` is attached inside the component — see below.
-};
+function personSchemaFor(founder: Founder) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: founder.name,
+    jobTitle: founder.role,
+    worksFor: { "@type": "MedicalClinic", name: site.name },
+    image: absoluteUrl(site.url, founder.photo),
+    ...(credentialNodes(founder.qualifications) === undefined
+      ? {}
+      : { hasCredential: credentialNodes(founder.qualifications) }),
+    // `description` is attached inside the component — see below.
+  };
+}
 
 export default async function AboutPage() {
-  const [aboutStory, achievements, philosophy, galleryImages] = await Promise.all([
-    getAboutStory(),
-    getAchievements(),
-    getPhilosophy(),
-    getGalleryImages(),
-  ]);
+  const [aboutStory, achievements, philosophy, galleryImages, founder] =
+    await Promise.all([
+      getAboutStory(),
+      getAchievements(),
+      getPhilosophy(),
+      getGalleryImages(),
+      // 🔴 The same reader the home hero uses, so the name, role and
+      // qualifications on the two pages cannot drift apart.
+      getFounder(),
+    ]);
+
+  /*
+   * The heading renders the first name in italics and the remainder plain.
+   * Split through the shared helper so the hero and this page can never
+   * disagree about where a stored name divides.
+   */
+  const { first: founderFirstName, rest: founderRestOfName } = splitFounderName(
+    founder.name,
+  );
 
   /*
    * 🔴 `description` moved out of the module-scope constant.
@@ -103,7 +123,10 @@ export default async function AboutPage() {
    * that no longer matched the prose rendered a few hundred pixels below it,
    * and structured data that contradicts the page is worse than none.
    */
-  const personSchemaWithDescription = { ...personSchema, description: aboutStory[0] };
+  const personSchemaWithDescription = {
+    ...personSchemaFor(founder),
+    description: aboutStory[0],
+  };
 
   return (
     <>
@@ -124,15 +147,15 @@ export default async function AboutPage() {
            * character for character.
            */
           <>
-            {site.founder.honorific}{" "}
+            {founder.honorific}{" "}
             <span className="italic">{founderFirstName}</span>
             {founderRestOfName && <> {founderRestOfName}</>}
           </>
         }
         lead={
           <>
-            {site.founder.role}
-            {site.founder.qualifications && (
+            {founder.role}
+            {founder.qualifications && (
               /*
                * 🔴 The founder's qualifications had NO consumer anywhere.
                *
@@ -152,7 +175,7 @@ export default async function AboutPage() {
                * statistics band, so this introduces no new typography.
                */
               <span className="mt-2 block text-label uppercase tracking-[0.16em]">
-                {site.founder.qualifications}
+                {founder.qualifications}
               </span>
             )}
           </>
@@ -165,8 +188,8 @@ export default async function AboutPage() {
           <div className="lg:sticky lg:top-nav">
             <Reveal className="group relative">
               <Frame
-                src={site.founder.photo}
-                alt={`${site.founder.honorific} ${site.founder.name}`}
+                src={founder.photo}
+                alt={`${founder.honorific} ${founder.name}`}
                 radius="xl"
                 priority
                 zoom
@@ -212,7 +235,7 @@ export default async function AboutPage() {
                 size="lg"
                 className="mt-block"
               >
-                Consult with {site.founder.name.split(" ")[0]}
+                Consult with {founderFirstName}
               </ButtonLink>
             </Reveal>
           </div>

@@ -3,7 +3,7 @@ import { Frame } from "@/components/ui/Media";
 import { Arc, Seed } from "@/components/ui/Decor";
 import { Reveal, Wipe } from "@/components/ui/Reveal";
 import { site } from "@/lib/site";
-import { getContactDetails, getServices, getStats } from "@/lib/content";
+import { getContactDetails, getFounder, getServices, getStats } from "@/lib/content";
 import * as copy from "@/lib/copy";
 
 /**
@@ -41,10 +41,12 @@ const heroCta2 = copy.action("home", "hero", "cta2");
 /* Resolution rule lives here; the data is awaited inside `Hero` (D-042). */
 
 export async function Hero() {
-  const [services, stats, contact] = await Promise.all([
+  const [services, stats, contact, founder] = await Promise.all([
     getServices(),
     getStats(),
     getContactDetails(),
+    // Same endpoint and tag as `getContactDetails`, so this is one fetch.
+    getFounder(),
   ]);
 
   // ✅ D-023 — `showInHero` selects the rows, `heroLabel ?? label` is the rule.
@@ -107,33 +109,65 @@ export async function Hero() {
           </Reveal>
         </div>
 
-        {/* Portrait — directly right of the headline */}
+        {/*
+          Portrait — directly right of the headline.
+
+          ⚠ `lg:self-stretch` + `lg:h-full` on the frame below. The grid is
+          `items-start`, so a fixed 4:5 portrait left the right column ending
+          61px ABOVE the headline column's buttons — a ragged edge down the
+          middle of the fold. Stretching it to the row height squares the two
+          columns off against each other; `object-cover` absorbs the change as
+          a few per cent of horizontal crop on a centred subject, and the
+          aspect ratio is kept below `lg` where the columns stack and there is
+          no edge to align to.
+        */}
         <Reveal
           immediate
           delay={140}
-          className="group relative order-2 lg:col-start-2 lg:row-start-1"
+          className="group relative order-2 lg:col-start-2 lg:row-start-1 lg:self-stretch"
         >
           <Frame
-            src={site.founder.photo}
-            alt={`${site.founder.honorific} ${site.founder.name}, ${site.founder.role}`}
+            src={founder.photo}
+            alt={`${founder.honorific} ${founder.name}, ${founder.role}`}
             radius="xl"
             priority
             zoom
             sizes="(min-width: 1024px) 26vw, 92vw"
-            className="aspect-4/5 w-full"
+            className="aspect-4/5 w-full lg:aspect-auto lg:h-full"
             imgClassName="object-top"
           />
 
-          {/* Credential chip — the portrait is the one photograph that is
-              actually her, so the name belongs here rather than over a stock
-              treatment shot. Stacked, since the column is narrow. */}
+          {/*
+            Credential chip — the portrait is the one photograph that is
+            actually her, so the name belongs here rather than over a stock
+            treatment shot. Stacked, since the column is narrow.
+
+            🔴 THE QUALIFICATIONS LINE. This showed the name and the role and
+            stopped, while /about showed name, role AND qualifications from
+            the same admin field — so the home page understated the clinician's
+            credentials, and an administrator editing them changed one page of
+            two. Both surfaces now read `getFounder()` and show the same three
+            lines, in the same order, from the same request.
+
+            ⚠ The typography is deliberately the one /about already uses for
+            this field: the small-caps `text-label` with the same tracking, so
+            the two pages read as one statement rather than two designs.
+          */}
           <div className="mt-4 lg:absolute lg:inset-x-4 lg:bottom-4 lg:mt-0 lg:rounded-lg lg:bg-ivory/92 lg:px-5 lg:py-4 lg:backdrop-blur-md">
-            <span className="block font-display text-h4 text-ink">
-              {site.founder.honorific} {site.founder.name}
+            <span className="block font-display text-h4 leading-tight text-ink">
+              {founder.honorific} {founder.name}
             </span>
-            <span className="mt-1 block text-small text-muted">
-              {site.founder.role}
+            <span className="mt-1 block text-small leading-snug text-muted">
+              {founder.role}
             </span>
+            {founder.qualifications && (
+              /* `border-t` rather than more margin: three stacked lines in a
+                 narrow overlay need the credentials read as a separate note,
+                 not as a third line of the role. */
+              <span className="mt-2.5 block border-t border-line pt-2.5 text-label uppercase leading-relaxed tracking-[0.14em] text-muted">
+                {founder.qualifications}
+              </span>
+            )}
           </div>
         </Reveal>
 
@@ -142,7 +176,7 @@ export async function Hero() {
           <p className="max-w-[42ch] text-lead text-muted">
             Acupuncture, acupressure and natural pain relief led by{" "}
             <span className="text-ink">
-              {site.founder.honorific} {site.founder.name}
+              {founder.honorific} {founder.name}
             </span>{" "}
             — treating the whole person, not just the symptom.
           </p>

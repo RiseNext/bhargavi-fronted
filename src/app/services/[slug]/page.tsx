@@ -5,11 +5,9 @@ import { notFound } from "next/navigation";
 import { IndexRule, Section, SectionHead, Wrap } from "@/components/ui/Section";
 import { Frame } from "@/components/ui/Media";
 import { Reveal, Wipe } from "@/components/ui/Reveal";
-import { ButtonLink } from "@/components/ui/Button";
 import { Arc } from "@/components/ui/Decor";
 import { ServiceCard } from "@/components/cards/ServiceCard";
 import { AppointmentForm } from "@/components/forms/AppointmentForm";
-import { whatsappUrl } from "@/lib/whatsapp";
 import { CtaBand } from "@/components/sections/HomeSections";
 import { getContactDetails, getServiceBySlug, getServices } from "@/lib/content";
 import { site } from "@/lib/site";
@@ -237,15 +235,13 @@ export default async function ServiceDetailPage({ params }: Params) {
                 ))}
                 {/* Derived from the generated hours (D-028). Was a literal. */}
                 <p className="mt-stack text-small text-muted">{hoursShort}</p>
-                {/* Carries the therapy name, so the clinic sees what the
-                    enquiry is about before reading a word. */}
-                <ButtonLink
-                  href={whatsappUrl(`Enquiry about ${service.title}`)}
-                  variant="outline"
-                  className="mt-stack w-full"
-                >
-                  Ask on WhatsApp
-                </ButtonLink>
+                {/* 🔴 The "Ask on WhatsApp" button was removed here at the
+                    client's request. It was also the last caller of
+                    `whatsappUrl` with no branch argument, so it silently
+                    addressed one clinic's line — the same defect the contact
+                    form's branch step exists to fix. The appointment form
+                    directly above asks which branch and carries the therapy
+                    name with it, so nothing is lost. */}
               </div>
             </Reveal>
           </aside>

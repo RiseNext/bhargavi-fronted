@@ -18,32 +18,27 @@ export type Testimonial = {
 export const testimonials: Testimonial[] = [
   {
     name: "Kranthi Gangapuri",
-    quote: "Thank you very much Anjana madam for your treatment on my leg twist pain. Got quick relief after your wonderful treatment. Results are the best. I strongly recommend this Acupressure treatment for health problems.",
-    when: "a year ago",
+    quote: "Thank you very much Anjana madam for your treatment on my leg twist pain. Got quick relief after your wonderful treatment. Results are the best. I strongly recommend this Acupressure treatment for health problems .",
     featured: true,
   },
   {
-    name: "Shreya Shah",
-    quote: "Life changing experience in short! Ms. Anjana has been treating me for my lower back L4, L5, Thyroid, PCOD, weight issues and overall my physical and mental well-being. I can't be more thankful for her services. Every session, she treats with utmost importance and gives her complete valuable time and attention. Thank you for changing my life.",
-    when: "a year ago",
+    name: "Shreya Kumari",
+    quote: "testing Life changing experience in short! Ms. Anjana has been treating me for my lower back L4, L5, Thyroid, PCOD, weight issues and overall my physical and mental well-being. I can't be more thankful for her services. Every session, she treats with utmost importance and gives her complete valuable time and attention. Thank you for changing my life.",
     featured: true,
   },
   {
-    name: "Chandru ShanmukhaRavali",
+    name: "Chandru Shanmukha Ravali",
     quote: "Anjana Bhargavi is just wow, there is a positive vibe in her touch. Just with a single sitting of acupuncture I have seen a better change in my body. I conceived with her stress relief acupuncture sitting, and Anjana Bhargavi helped me in my pregnancy journey — she gave better suggestions. And moreover the way she communicates is just awesome, such a pleasant feel we get while communicating with her.",
-    when: "a year ago",
     featured: true,
   },
   {
     name: "Shree Laxmi Srinivas",
     quote: "I've been overweight with joint pains for a long time. With the help of Anjana Bhargavi, my severe joint pain issues have been completely solved and my weight is under control. Highly recommend her treatment for people who are looking for an alternate therapy from allopathy and physiotherapy.",
-    when: "a year ago",
     featured: true,
   },
   {
     name: "Krishna Chaitanya",
     quote: "Ms. Anjana Bhargavi from Bhargavi Health World is giving acupuncture and acupressure treatment for my father, who has undergone spine surgery after paralysis. As of now there are good results in sensation and movement of the body post treatment. Do consider if anyone is looking for acupuncture treatment for any kind of health problem.",
-    when: "a year ago",
     featured: true,
   },
   {
@@ -114,7 +109,6 @@ export const testimonials: Testimonial[] = [
   {
     name: "Haribabu Ramineni",
     quote: "Very much useful and genuine information which is very much beneficial in our day to day life.",
-    when: "3 years ago",
   },
   {
     name: "Bhavani Chowdary",

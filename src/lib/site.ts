@@ -17,9 +17,9 @@ export const site = {
   locale: "en_IN",
   founder: {
     name: "Anjana Bhargavi",
-    honorific: "Mrs.",
-    qualifications: "BA, B.Ed, MA, Diploma in Acupuncture",
-    role: "Founder Acupuncture",
+    honorific: "Ms.",
+    qualifications: "M.A., B.Ed. Diploma in Acupuncture",
+    role: "Founder & Managing Director",
     photo: "https://res.cloudinary.com/iojros3g/image/upload/v1791475666/bhw/dev/brand/anjana-bhargavi.jpg",
   },
   phones: [
@@ -39,11 +39,30 @@ export const site = {
       name: "Chikkadpally",
       phone: "+91 98663 76203",
       whatsapp: "+919866376203",
+      address: {
+        line1: "H. No 1-8-539/1/a, Metro Pillar No-1115",
+        line2: "Near Pista House, Chikkadpally",
+        city: "Hyderabad",
+        state: "Telangana",
+        postalCode: "500020",
+        country: "IN",
+        full: "H. No 1-8-539/1/a, Metro Pillar No-1115, Near Pista House, Chikkadpally, Hyderabad, Telangana - 500020",
+      },
+      mapsUrl: "https://maps.app.goo.gl/XLX7hEATPodxRXa4A",
     },
     {
       name: "Bowenpally",
       phone: "+91 70751 57013",
       whatsapp: "+917075157013",
+      address: {
+        line1: "Vahininagar Colony, Plot No. 15, Gate No. 01",
+        line2: "Sikh Village, Near Bowenpally Market Road, Opp. Punjab National Bank",
+        city: "Secunderabad",
+        state: "Telangana",
+        postalCode: "500011",
+        country: "IN",
+        full: "Vahininagar Colony, Plot No. 15, Gate No. 01, Sikh Village, Near Bowenpally Market Road, Opp. Punjab National Bank, Secunderabad, Telangana - 500011",
+      },
     },
   ],
   whatsapp: {

@@ -3,7 +3,7 @@ import { Frame } from "@/components/ui/Media";
 import { Arc, Seed } from "@/components/ui/Decor";
 import { Reveal, Wipe } from "@/components/ui/Reveal";
 import { site } from "@/lib/site";
-import { getServices, getStats } from "@/lib/content";
+import { getContactDetails, getServices, getStats } from "@/lib/content";
 import * as copy from "@/lib/copy";
 
 /**
@@ -41,7 +41,11 @@ const heroCta2 = copy.action("home", "hero", "cta2");
 /* Resolution rule lives here; the data is awaited inside `Hero` (D-042). */
 
 export async function Hero() {
-  const [services, stats] = await Promise.all([getServices(), getStats()]);
+  const [services, stats, contact] = await Promise.all([
+    getServices(),
+    getStats(),
+    getContactDetails(),
+  ]);
 
   // ✅ D-023 — `showInHero` selects the rows, `heroLabel ?? label` is the rule.
   const heroStats = stats
@@ -71,7 +75,11 @@ export async function Hero() {
           <Reveal immediate>
             <p className="label text-terracotta">
               <Seed />
-              {site.name} · Chikkadpally, Hyderabad
+              {/* Both clinics, named from the live branch records rather
+                  than retyped — D-013 owns their order, and a third branch
+                  would appear here with no code change. */}
+              {site.name} · {contact.branches.map((b) => b.name).join(" & ")},
+              Hyderabad
             </p>
           </Reveal>
 

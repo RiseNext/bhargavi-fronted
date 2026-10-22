@@ -16,6 +16,16 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  /**
+   * ⚠ TEST-ONLY ESCAPE HATCH, default unchanged.
+   *
+   * `tests/careers-page.test.mjs` starts its own Next server against a stub
+   * backend. Without this it would share `.next` with whatever dev server the
+   * developer already has running and corrupt it mid-build. Unset — which is
+   * every real build, local and on Vercel — this is exactly `.next`.
+   */
+  distDir: process.env.NEXT_DIST_DIR ?? ".next",
+
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [

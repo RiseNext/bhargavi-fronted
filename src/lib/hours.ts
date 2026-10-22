@@ -171,3 +171,71 @@ export const openingHoursSpecification: ReadonlyArray<{
     closes: g.window.close,
   }));
 })();
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Runtime transform — structured hours → the `{ days, time }` display shape.
+ *
+ * 🔴 WHY A SECOND COPY OF THIS LOGIC EXISTS. `scripts/hours.mjs` already has
+ * `toDisplayHours`, and the generator calls it to bake `site.hours`. That
+ * module is plain ESM under `scripts/`, outside `src`, and cannot be imported
+ * by the app. The surfaces that read the hours from the API at RUNTIME need
+ * the same grouping, so it is ported here rather than left to drift as a
+ * third hand-written rendering of the opening times — which is exactly the
+ * duplication this file was created to end.
+ *
+ * ⚠ The output must stay byte-identical to the generator's: Monday-first,
+ * consecutive days sharing a schedule collapsed into "Monday – Sunday",
+ * closed days dropped entirely.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+const DAY_NAMES = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+] as const;
+
+/** Monday-first, the order the clinic's week is read in. */
+const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0] as const;
+
+export type StructuredDay = {
+  day: number;
+  windows: ReadonlyArray<{ open: string; close: string }>;
+};
+
+export function toDisplayHours(
+  hours: ReadonlyArray<StructuredDay>,
+): Array<{ days: string; time: string }> {
+  const byDay = new Map<number, ReadonlyArray<{ open: string; close: string }>>();
+  for (const entry of hours) byDay.set(entry.day, entry.windows);
+
+  /** Identical signatures are what makes two days groupable. "" means closed. */
+  const signature = (windows: ReadonlyArray<{ open: string; close: string }>) =>
+    windows.map((w) => `${w.open}-${w.close}`).join(",");
+
+  const groups: { key: string; days: number[]; windows: StructuredDay["windows"] }[] =
+    [];
+
+  for (const day of DAY_ORDER) {
+    const windows = byDay.get(day) ?? [];
+    const key = signature(windows);
+    const last = groups.at(-1);
+    if (last && last.key === key) last.days.push(day);
+    else groups.push({ key, days: [day], windows });
+  }
+
+  return groups
+    .filter((group) => group.key !== "")
+    .map((group) => ({
+      days:
+        group.days.length === 1
+          ? String(DAY_NAMES[group.days[0]])
+          : `${String(DAY_NAMES[group.days[0]])} – ${String(DAY_NAMES[group.days.at(-1) ?? 0])}`,
+      time: group.windows
+        .map((w) => `${to12Hour(w.open)} – ${to12Hour(w.close)}`)
+        .join(", "),
+    }));
+}

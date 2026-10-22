@@ -4,14 +4,15 @@ import { metadataFor } from "@/lib/page-metadata";
 import { PageHero } from "@/components/ui/PageHero";
 import { Section, SectionHead, Wrap } from "@/components/ui/Section";
 import { Reveal } from "@/components/ui/Reveal";
-import { ArrowLink, ButtonLink } from "@/components/ui/Button";
+import { ArrowLink } from "@/components/ui/Button";
 import { OpenStatus } from "@/components/ui/OpenStatus";
 import { Accordion } from "@/components/ui/Accordion";
 import { AppointmentForm } from "@/components/forms/AppointmentForm";
 import { ContactForm } from "@/components/forms/ContactForm";
+import { cn } from "@/lib/cn";
 import { site } from "@/lib/site";
 import * as copy from "@/lib/copy";
-import { getFaqs, getServices } from "@/lib/content";
+import { branchMapsHref, getContactDetails, getFaqs, getServices } from "@/lib/content";
 
 export const metadata: Metadata = metadataFor("contact");
 
@@ -47,45 +48,6 @@ function infoCard(index: number): { label: string; cta: string; icon: CardIcon }
   };
 }
 
-const cards: {
-  label: string;
-  icon: CardIcon;
-  lines: string[];
-  href: string;
-  cta: string;
-}[] = [
-  // The LINES and HREF of every card are live expressions — phone numbers,
-  // the resolved address, the email and the formatted hours all come from the
-  // branch records (D-029), and freezing any of them here is the duplication
-  // defect PUB-02 exists to remove. The card's label, its call-to-action
-  // wording and its icon ARE editable, so those come from
-  // `contact.infoCards.items`, zipped by position.
-  {
-    lines: site.phones.map((p) => `${p.branch} · ${p.label}`),
-    href: site.phones[0].href,
-    ...infoCard(0),
-  },
-  {
-    lines: [
-      site.address.line1,
-      site.address.line2,
-      `${site.address.city} – ${site.address.postalCode}`,
-    ],
-    href: site.mapsUrl,
-    ...infoCard(1),
-  },
-  {
-    lines: [site.email],
-    href: `mailto:${site.email}`,
-    ...infoCard(2),
-  },
-  {
-    lines: site.hours.map((h) => `${h.days} · ${h.time}`),
-    href: site.whatsapp.href,
-    ...infoCard(3),
-  },
-];
-
 const iconPaths: Record<CardIcon, string> = {
   phone:
     "M14.5 11.3v2a1.3 1.3 0 0 1-1.45 1.3 13 13 0 0 1-5.62-2 12.7 12.7 0 0 1-3.9-3.9 13 13 0 0 1-2-5.65A1.3 1.3 0 0 1 2.83 1.5h2a1.3 1.3 0 0 1 1.3 1.12c.08.63.24 1.24.46 1.82a1.3 1.3 0 0 1-.29 1.37l-.85.85a10.4 10.4 0 0 0 3.9 3.9l.85-.85a1.3 1.3 0 0 1 1.37-.29c.58.22 1.19.38 1.82.46a1.3 1.3 0 0 1 1.12 1.32Z",
@@ -115,63 +77,239 @@ function CardIconMark({ name }: { name: CardIcon }) {
   );
 }
 
+/**
+ * The one card shell every panel in this section uses.
+ *
+ * 🔴 ONE shell, not four variants. The section previously tried to fit a
+ * phone list, two postal addresses, an email and a set of opening hours into
+ * four identical narrow columns, so each one wrapped differently and the row
+ * grew to the height of the worst case. The shell now carries only the chrome
+ * — icon, label, a body that grows, and one call-to-action pinned to the
+ * bottom — and the CALLER decides how wide it sits and what goes inside.
+ */
+function InfoCard({
+  icon,
+  label,
+  cta,
+  href,
+  children,
+  className,
+}: {
+  icon: CardIcon;
+  label: string;
+  cta: string;
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const external = href.startsWith("http");
+  return (
+    <div
+      className={cn(
+        "group flex h-full flex-col rounded-xl border border-line bg-paper p-[clamp(1.25rem,1rem+1.1vw,1.75rem)] transition-[transform,box-shadow,border-color] duration-500 ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-1 hover:border-walnut-soft/45 hover:shadow-[0_1.25rem_2.25rem_-1.25rem_rgb(61_42_30/0.3)]",
+        className,
+      )}
+    >
+      <div className="flex items-center gap-3">
+        <span className="grid aspect-square w-10 shrink-0 place-items-center rounded-full bg-sand text-walnut transition-colors duration-400 group-hover:bg-walnut group-hover:text-ivory">
+          <CardIconMark name={icon} />
+        </span>
+        {/* Label beside the icon rather than under it — one row less of
+            vertical space, and the pairing reads immediately. */}
+        <h2 className="label text-terracotta">{label}</h2>
+      </div>
+
+      <div className="mt-stack flex-1">{children}</div>
+
+      <a
+        href={href}
+        target={external ? "_blank" : undefined}
+        rel={external ? "noopener noreferrer" : undefined}
+        className="underline-grow mt-stack self-start text-small font-medium text-ink"
+      >
+        {cta}
+      </a>
+    </div>
+  );
+}
+
+/**
+ * A phone number as its own line.
+ *
+ * ⚠ `whitespace-nowrap`: the number is three groups separated by spaces, so
+ * a narrow column will happily break it after "+91" or mid-digits — which is
+ * how "+91 70751 57013" came to render across two lines. `tabular-nums`
+ * keeps the digit widths even.
+ */
+function PhoneNumber({ label, href }: { label: string; href: string }) {
+  return (
+    <a
+      href={href}
+      className="block whitespace-nowrap font-display text-[clamp(1.25rem,1.1rem+0.5vw,1.5rem)] leading-none tracking-[0.01em] text-ink tabular-nums transition-colors hover:text-terracotta"
+    >
+      {label}
+    </a>
+  );
+}
+
+/**
+ * The email address, with its only sane break point marked.
+ *
+ * 🔴 It rendered as "bhargavihealthworld@gmai / l.com" — a break mid-domain,
+ * because the whole address is one unbreakable token and the column had to
+ * break it SOMEWHERE to fit. `<wbr>` offers a break before the "@" and
+ * `break-words` takes only offered opportunities, so it splits as
+ * "bhargavihealthworld / @gmail.com", or not at all when there is room.
+ */
+function EmailAddress({ email }: { email: string }) {
+  const at = email.lastIndexOf("@");
+  return (
+    <a
+      href={`mailto:${email}`}
+      className="block break-words text-[1.0625rem] font-medium leading-snug text-ink transition-colors hover:text-terracotta"
+    >
+      {at > 0 ? (
+        <>
+          {email.slice(0, at)}
+          <wbr />
+          {email.slice(at)}
+        </>
+      ) : (
+        email
+      )}
+    </a>
+  );
+}
+
 export default async function ContactPage() {
-  const [faqs, services] = await Promise.all([getFaqs(), getServices()]);
+  // 🔴 `contact` comes from the API at request time (D-042), NOT from the
+  // generated `site` module. The clinic's addresses and numbers are the
+  // single most likely thing the owner edits, and reading the committed file
+  // meant an edit published in the admin panel showed up only after a
+  // rebuild — which is how Bowenpally's address stayed invisible.
+  const [faqs, services, contact] = await Promise.all([
+    getFaqs(),
+    getServices(),
+    getContactDetails(),
+  ]);
+
+  const callCard = infoCard(0);
+  const visitCard = infoCard(1);
+  const emailCard = infoCard(2);
+  const hoursCard = infoCard(3);
+
+  // Only the clinics that actually have an address. A branch without one is
+  // not rendered as an empty card.
+  const clinics = contact.branches.filter((b) => b.address);
+
   return (
     <>
+      {/* The lead paragraph, the Call / WhatsApp buttons and the open-status
+          pill were removed here at the client's request. The banner now ends
+          at the heading; the panels below carry the same numbers, hours and
+          routes out. */}
       <PageHero
         breadcrumb={[{ label: "Home", href: "/" }, { label: "Contact" }]}
         label={copy.text("contact", "hero", "label")}
         title={copy.heading("contact", "hero")}
-        lead={copy.text("contact", "hero", "lead")}
-        aside={
-          /* The two things someone lands here to do, above the fold. */
-          <div className="mt-stack flex flex-wrap items-center gap-3">
-            <ButtonLink href={site.phones[0].href}>
-              Call {site.phones[0].label}
-            </ButtonLink>
-            <ButtonLink href={site.whatsapp.href} variant="outline">
-              WhatsApp us
-            </ButtonLink>
-            <OpenStatus />
-          </div>
-        }
       />
 
-      {/* Info — real card surfaces. As bare rows on the ivory ground these
-          four read as page background rather than as the contact details. */}
+      {/*
+        Contact details.
+
+        🔴 ONE CARD PER CLINIC, not one card per kind of detail. The four
+        columns of Call / Visit / Email / Hours forced a visitor to read a
+        number out of the first card and match it by eye to an address in the
+        second — and it had room for only ONE address, which is why the second
+        clinic was missing from the page entirely. Each clinic now carries its
+        own address, its own number and its own directions link, and the two
+        details that belong to the practice rather than to a branch sit in a
+        narrower row beneath.
+
+        Responsive: one column on phones, two from `sm` up for the clinics,
+        two from `sm` for email and hours. Nothing relies on a four-wide row
+        that only existed above 1024px.
+      */}
       <Section tone="ivory" flush className="pb-section pt-block">
         <Wrap>
-          <ul className="grid gap-gutter sm:grid-cols-2 lg:grid-cols-4">
-            {cards.map((card, i) => (
-              <Reveal key={card.label} delay={(i % 4) * 70} className="h-full">
-                <li className="group flex h-full flex-col rounded-xl border border-line bg-paper p-[clamp(1.25rem,1rem+1.1vw,1.75rem)] transition-[transform,box-shadow,border-color] duration-500 ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-1.5 hover:border-walnut-soft/45 hover:shadow-[0_1.25rem_2.25rem_-1.25rem_rgb(61_42_30/0.3)]">
-                  <span className="grid aspect-square w-10 place-items-center rounded-full bg-sand text-walnut transition-colors duration-400 group-hover:bg-walnut group-hover:text-ivory">
-                    <CardIconMark name={card.icon} />
-                  </span>
+          <ul className="grid gap-gutter sm:grid-cols-2">
+            {clinics.map((clinic, i) => {
+              const mapsHref = branchMapsHref(clinic) ?? contact.mapsUrl;
+              const address = clinic.address;
+              return (
+                <Reveal key={clinic.name} delay={i * 80} className="h-full">
+                  <li className="h-full">
+                    <InfoCard
+                      icon={visitCard.icon}
+                      label={clinic.name}
+                      cta={visitCard.cta}
+                      href={mapsHref}
+                    >
+                      {address && (
+                        <address className="not-italic text-body leading-relaxed text-ink-2">
+                          {address.line1}
+                          <br />
+                          {address.line2}
+                          <br />
+                          {address.city} – {address.postalCode}
+                        </address>
+                      )}
 
-                  <h2 className="mt-stack label text-terracotta">{card.label}</h2>
-                  {/* `anywhere`, not `break-word`: the email address is a
-                      single unbreakable token, and only `anywhere` also
-                      shrinks the min-content width so the grid track behaves. */}
-                  <div className="mt-2.5 flex-1 space-y-0.5 text-body text-ink-2 [overflow-wrap:anywhere]">
-                    {card.lines.map((line) => (
-                      <p key={line}>{line}</p>
-                    ))}
-                    {/* Saves the visitor doing timezone arithmetic. */}
-                    {card.icon === "clock" && <OpenStatus className="mt-3" />}
-                  </div>
-                  <a
-                    href={card.href}
-                    target={card.href.startsWith("http") ? "_blank" : undefined}
-                    rel={card.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="underline-grow mt-stack self-start text-small font-medium text-ink"
-                  >
-                    {card.cta}
-                  </a>
-                </li>
-              </Reveal>
-            ))}
+                      {clinic.phoneHref && (
+                        <div className="mt-stack border-t border-line pt-stack">
+                          <span className="mb-1.5 block text-small text-muted">
+                            {callCard.label}
+                          </span>
+                          <PhoneNumber
+                            label={clinic.phone}
+                            href={clinic.phoneHref}
+                          />
+                        </div>
+                      )}
+                    </InfoCard>
+                  </li>
+                </Reveal>
+              );
+            })}
+          </ul>
+
+          <ul className="mt-gutter grid gap-gutter sm:grid-cols-2">
+            <Reveal delay={160} className="h-full">
+              <li className="h-full">
+                <InfoCard
+                  icon={emailCard.icon}
+                  label={emailCard.label}
+                  cta={emailCard.cta}
+                  href={`mailto:${contact.email}`}
+                >
+                  <EmailAddress email={contact.email} />
+                </InfoCard>
+              </li>
+            </Reveal>
+
+            <Reveal delay={220} className="h-full">
+              <li className="h-full">
+                <InfoCard
+                  icon={hoursCard.icon}
+                  label={hoursCard.label}
+                  cta={hoursCard.cta}
+                  href={contact.whatsappHref}
+                >
+                  {contact.hours.map((h) => (
+                    <div key={h.days}>
+                      <span className="mb-1 block text-small text-muted">
+                        {h.days}
+                      </span>
+                      <span className="block whitespace-nowrap text-[1.0625rem] font-medium leading-snug text-ink">
+                        {h.time}
+                      </span>
+                    </div>
+                  ))}
+                  {/* Saves the visitor doing the arithmetic themselves. */}
+                  <OpenStatus className="mt-3" />
+                </InfoCard>
+              </li>
+            </Reveal>
           </ul>
         </Wrap>
       </Section>
@@ -184,8 +322,10 @@ export default async function ContactPage() {
             <Reveal delay={90}>
               <div className="overflow-hidden rounded-xl border border-line bg-paper">
                 <iframe
-                  src={site.mapEmbedSrc}
-                  title={`Map showing ${site.name}, Chikkadpally`}
+                  src={contact.mapEmbedSrc}
+                  /* Names the clinic the embed actually shows — D-029 resolves
+                     one map for the practice, and the page now lists two. */
+                  title={`Map showing ${site.name}, ${clinics[0]?.name ?? ""}`}
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                   className="block aspect-4/3 w-full border-0 sm:aspect-16/10"
@@ -196,7 +336,7 @@ export default async function ContactPage() {
                   <p className="text-small text-muted">
                     {copy.extra("contact", "map", "captionBelow")}
                   </p>
-                  <ArrowLink href={site.mapsUrl} external>
+                  <ArrowLink href={contact.mapsUrl} external>
                     Get directions
                   </ArrowLink>
                 </div>

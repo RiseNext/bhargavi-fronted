@@ -12,6 +12,39 @@ import * as copy from "@/lib/copy";
  * preselected. Mirrors the Lightbox dialog conventions (scroll lock,
  * Escape, backdrop click).
  */
+/**
+ * 🔴 BUILD-JOBS-01 — the zero-openings state, and why this text is in code.
+ *
+ * With no vacancies the component used to render an EMPTY `<ul>`: the page
+ * kept its "Current openings" heading and then showed nothing at all, which
+ * reads as a broken page rather than as "no openings right now". Every other
+ * string on this page comes from `page_copy`, but `copy.extra` throws on a
+ * key the database does not have, and adding one would mean a schema and
+ * seed change against the production CMS. This is therefore code-owned, in
+ * the same sense as `NAV` and `MAILTO_SUBJECT` in `scripts/code-owned.mjs`.
+ *
+ * ⚠ The general-application section further down the page is the route out
+ * for someone who arrives here and finds nothing, so this state deliberately
+ * points at it rather than being a dead end.
+ */
+const NO_OPENINGS = {
+  title: "There are currently no openings.",
+  lead: "Please check back later — or send a general application below and we'll keep you in mind for the next role that opens.",
+} as const;
+
+function NoOpenings() {
+  return (
+    <Reveal>
+      <div className="mt-block rounded-xl border border-dashed border-walnut/40 bg-paper/60 px-[clamp(1.25rem,1rem+1.5vw,2.5rem)] py-[clamp(2rem,1.5rem+2.5vw,3.5rem)] text-center">
+        <p className="font-display text-h4 text-ink">{NO_OPENINGS.title}</p>
+        <p className="mx-auto mt-2.5 max-w-[46ch] text-small text-muted">
+          {NO_OPENINGS.lead}
+        </p>
+      </div>
+    </Reveal>
+  );
+}
+
 export function JobOpenings({ jobs }: { jobs: readonly Job[] }) {
   const [active, setActive] = useState<Job | null>(null);
   const close = useCallback(() => setActive(null), []);
@@ -30,6 +63,11 @@ export function JobOpenings({ jobs }: { jobs: readonly Job[] }) {
       document.removeEventListener("keydown", onKey);
     };
   }, [active, close]);
+
+  // ⚠ AFTER the hooks, never before — an early return above `useState` /
+  // `useEffect` would change hook order between a page with openings and one
+  // without, which React treats as an error.
+  if (jobs.length === 0) return <NoOpenings />;
 
   return (
     <>

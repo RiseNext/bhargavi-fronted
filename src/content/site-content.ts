@@ -108,9 +108,9 @@ export const philosophy = [
 ];
 
 export const aboutStory = [
-  "Mrs Anjana Bhargavi is the brain child behind the inspiring and exceptional Bhargavi Health World. A centre dedicated to providing world class treatments and counselling in alternate medicine which are tried, tested and proven to be effective. She believes “The only way to do great work is to love what you do”, and she most definitely has poured her heart and soul into the centre and into every patient's well being. Bhargavi was born and brought up in Mahabubnagar, Telangana. Now she serves as a senior Acupuncture Therapist.",
-  "She started her career in 2017 and has since successfully treated 1000+ patients. Learning new things has always been a passion of hers and as a part of that, she learnt Varma Therapy, Cupping Therapy and more, to enhance patient well being through targeted treatment. She started Bhargavi Health World to spread happiness by making her patients healthy from within.",
-  "Bhargavi Health World provides services including Acupressure Therapy, Acupuncture Therapy, Yoga, and meditation through Sunya.",
+  "Mrs Anjana Bhargavi is the brain child behind the inspiring and exceptional Bhargavi Health World. A centre dedicated to providing world class treatments and counselling in alternate medicine which are tried, tested and proven to be effective. She believes “The only way to do great work is to love what you do”, and she most definitely has poured her heart and soul into the centre and into every patient's well being. Bhargavi was born and brought up in Mahabubnagar, Telangana. Now she serves Acupuncture .",
+  "She started her career and has successfully treated 3000+ patients. Learning new things has always been a passion of hers and as a part of that, she learnt Varma Therapy, Cupping Therapy and more, to enhance patient well being through targeted treatment. She started Bhargavi Health World to spread happiness by making her patients healthy from within.",
+  "Bhargavi Health World provides services including kerala ayurvedic panchakarma & Panchakarma Acupressure & Naturopathy Consultation Nutrition & Diet & Seed Therapy Cupping Therapy & Magnetic Therapy Chiropractic & Varma Kala",
 ];
 
 export const achievements = [
@@ -125,12 +125,12 @@ export type Faq = { question: string; answer: string };
 
 export const faqs: Faq[] = [
   {
-    question: "How many sessions are needed for acupuncture to be effective?",
-    answer: "The number of sessions required varies by individual and condition, but many people notice improvements after 2–4 sessions, with chronic issues potentially requiring more frequent visits.",
+    question: "How many sessions are needed for acupuncture to be effective??",
+    answer: "The number of sessions required varies by individual and condition, but many people notice improvements after 2–4 sessions, with chronic issues potentially requiring more frequent visits..",
   },
   {
-    question: "What conditions can seed therapy help with?",
-    answer: "Seed therapy is often used to help with issues such as stress, anxiety, chronic pain, digestive problems, and respiratory issues, although its effectiveness can vary based on the individual.",
+    question: "2testWhat conditions can seed therapy help with?",
+    answer: "2testSeed therapy is often used to help with issues such as stress, anxiety, chronic pain, digestive problems, and respiratory issues, although its effectiveness can vary based on the individual.",
   },
   {
     question: "Is physiotherapy painful?",

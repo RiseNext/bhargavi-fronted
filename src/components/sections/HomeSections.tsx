@@ -565,9 +565,22 @@ export async function FaqSection() {
  * second hero this close to the footer.
  */
 export function CtaBand() {
+  /**
+   * 🔴 NO ACTIONS. This band carried "Book an appointment" and a call button
+   * on the right; the client asked for both to go, leaving the band as copy
+   * only. The page is not left without a route to booking — the closing
+   * section above it is the appointment form itself, the header keeps a
+   * booking link, and `FloatingActions` keeps the call and WhatsApp buttons
+   * on screen the whole way down.
+   *
+   * ⚠ `global.ctaBand.cta` is still stored and still read by nothing here.
+   * Leave the row in the database rather than deleting it — removing it would
+   * make this band unrestorable from the admin panel if the client changes
+   * their mind.
+   */
   return (
     <section className="relative isolate overflow-clip bg-walnut">
-      <div className="wrap flex flex-col gap-stack py-block lg:flex-row lg:items-center lg:justify-between lg:gap-block">
+      <div className="wrap py-block">
         <Reveal>
           <p className="label text-terracotta-soft">
             <Seed />
@@ -579,30 +592,6 @@ export function CtaBand() {
           <p className="mt-2 max-w-[46ch] text-small text-ivory/60">
             {copy.text("global", "ctaBand", "lead")}
           </p>
-        </Reveal>
-
-        <Reveal delay={120} className="shrink-0">
-          <div className="flex flex-wrap items-center gap-3">
-            <ButtonLink href={copy.action("global", "ctaBand").href} variant="inverse">
-              {copy.action("global", "ctaBand").label}
-            </ButtonLink>
-            {/**
-             * 🔴 BOTH halves of this second CTA are code-owned, by the owner's
-             * decision on D-040. `site.phones[0].href` must stay a runtime
-             * expression — D-013 gives phones their own `phone_sort_order`, so a
-             * stored href would silently point at the wrong branch the moment
-             * that ordering changes — and the label `Call {…label}` tracks it.
-             * `cta2_label` and `cta2_href` are therefore both NULL in the
-             * database and absent from `pageCopy`. Do not "finish wiring" this.
-             */}
-            <ButtonLink
-              href={site.phones[0].href}
-              variant="outline"
-              className="border-ivory/30 text-ivory hover:border-ivory hover:bg-ivory hover:text-ink"
-            >
-              Call {site.phones[0].label}
-            </ButtonLink>
-          </div>
         </Reveal>
       </div>
     </section>

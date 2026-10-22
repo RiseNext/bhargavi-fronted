@@ -15,6 +15,8 @@
 
 # next.js
 /.next/
+# Build directory used by tests/careers-page.test.mjs, via NEXT_DIST_DIR.
+/.next-test/
 /out/
 
 # production

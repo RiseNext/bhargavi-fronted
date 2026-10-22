@@ -226,7 +226,7 @@ export function assertUsable(content) {
     );
   }
 
-  // Non-empty collections that the live site demonstrably has.
+  // Collections the generator checks before emitting.
   //
   // 🔴 GEN-SEO-03. This list covered only the first five. An empty
   // `page_meta`, `content_lists`, `stats`, `gallery` or `content_blocks`
@@ -235,23 +235,55 @@ export function assertUsable(content) {
   // deploy that succeeds while the statistics band, the "why choose us" list,
   // the gallery or every page heading quietly vanishes from the site.
   //
-  // ⚠ `posts` is deliberately NOT here: zero blog posts is the real, correct
-  // state today (D-036), and requiring one would fail every build until
-  // somebody writes an article.
-  const required = [
+  // ⚠ TWO DIFFERENT FAILURES, checked separately below. A response that is not
+  // an array at all means the API answered with something malformed — a bare
+  // `{}`, an error envelope, an HTML error page parsed as JSON — and that is
+  // fatal for EVERY collection including the ones whose minimum is zero.
+  // Being *empty* is a question about the business, and the answer differs per
+  // collection.
+  //
+  // ⚠ MINIMUM 0 IS A STATEMENT THAT ZERO IS A REAL ANSWER:
+  //   · `posts` — zero blog posts is the correct state today (D-036), and
+  //     requiring one would fail every build until somebody writes an article.
+  //   · `jobs` — 🔴 BUILD-JOBS-01. This was 1, so removing the last vacancy in
+  //     the admin panel broke the next Vercel build with "jobs is empty — the
+  //     live site has content here". A clinic with no current openings is an
+  //     ordinary, correct business state, not a content outage: the careers
+  //     page is still reachable, still takes general applications, and now
+  //     says so. Requiring a vacancy to exist would mean the owner cannot
+  //     close a role without taking the site down, and the obvious workaround
+  //     — inventing a placeholder job — publishes a position that does not
+  //     exist.
+  //
+  // Everything else keeps its minimum of 1. Those collections have live
+  // surfaces that render as blank sections when empty, with no "nothing here"
+  // state to fall back on, so zero really does mean the API lost them.
+  const collections = [
     ["services", content.services, 1],
     ["testimonials", content.testimonials, 1],
     ["videos", content.videos, 1],
     ["faqs", content.faqs, 1],
-    ["jobs", content.jobs, 1],
+    ["jobs", content.jobs, 0],
     ["gallery", content.gallery, 1],
     ["content-lists", content.contentLists, 1],
     ["page-meta", content.pageMeta, 1],
     ["content-blocks", content.contentBlocks, 1],
     ["stats", settings.stats, 1],
+    ["posts", content.posts, 0],
   ];
-  for (const [name, list, minimum] of required) {
-    if (!Array.isArray(list) || list.length < minimum) {
+  for (const [name, list, minimum] of collections) {
+    if (!Array.isArray(list)) {
+      // Covers a missing `items` key, an error envelope, and anything else
+      // that is not a list of rows. Never silently treated as "empty".
+      problems.push(
+        `${name} is not an array — the API returned a malformed response ` +
+          `(got ${list === undefined ? "undefined" : typeof list}). ` +
+          "Emitting an empty module here would publish a site with that " +
+          "content silently missing.",
+      );
+      continue;
+    }
+    if (list.length < minimum) {
       problems.push(`${name} is empty — the live site has content here.`);
     }
   }
@@ -486,10 +518,37 @@ export function emitSite(content) {
     // 🔴 D-013: `branches` is ordered by sort_order and `phones` by
     // phone_sort_order. The arrays are exact reverses in the live site, and the
     // API has already applied both orderings — the generator must not re-sort.
+    //
+    // ⚠ `address` and `mapsUrl` are emitted PER BRANCH and are optional. The
+    // site-wide `site.address` below is D-029's single resolved address — the
+    // first branch by sort_order that has one — and for a two-clinic practice
+    // that silently hid the second clinic's address entirely: the owner could
+    // type Bowenpally's address into the admin panel, see it saved, and find
+    // it nowhere on the website, because the generator dropped it here. The
+    // contact page and the footer now list every branch that has an address.
+    //
+    // Both stay optional rather than required: a branch genuinely may not
+    // have its address or a Maps link yet, and making either mandatory would
+    // fail the build on correct data (the same trap the note at
+    // `assertUsable` warns about).
     branches: s.branches.map((b) => ({
       name: b.name,
       phone: b.phone,
       whatsapp: b.whatsapp,
+      ...(b.address
+        ? {
+            address: pick(b.address, [
+              "line1",
+              "line2",
+              "city",
+              "state",
+              "postalCode",
+              "country",
+              "full",
+            ]),
+          }
+        : {}),
+      ...(b.mapsUrl ? { mapsUrl: b.mapsUrl } : {}),
     })),
     whatsapp: { number: s.whatsapp.number, href: s.whatsapp.href },
     email: s.email,

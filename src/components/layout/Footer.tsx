@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { site } from "@/lib/site";
+import { getContactDetails } from "@/lib/content";
 import { privacyPublished } from "@/content/page-copy";
 
 /** Official brand glyphs, filled with currentColor so hover styles apply. */
@@ -37,7 +38,11 @@ const explore = [
  * Deliberately short: brand, one row of links, the details someone actually
  * needs to visit or call, and a thin legal line.
  */
-export function Footer() {
+export async function Footer() {
+  /* Addresses, numbers, email and hours come from the API at request time
+     (D-042) so an edit in the admin panel publishes without a redeploy. */
+  const contact = await getContactDetails();
+
   return (
     <footer className="bg-walnut text-ivory/70">
       <div className="wrap">
@@ -95,28 +100,39 @@ export function Footer() {
             {/* Visit */}
             <div>
               <h2 className="label text-ivory/45">Visit</h2>
+              {/* 🔴 Both clinics, read from the API at request time. This
+                  printed `site.address` — D-029's ONE resolved address, which
+                  is Chikkadpally's — out of the GENERATED module, so
+                  Bowenpally had a number in the footer, no address anywhere on
+                  the site, and no way to fix either without a redeploy. */}
               <address className="mt-3 not-italic text-small leading-relaxed text-ivory/60">
-                {site.address.line1}, {site.address.city} –{" "}
-                {site.address.postalCode}
-                {site.phones.map((p) => (
-                  <span key={p.href} className="mt-1.5 block">
-                    <span className="text-ivory/45">{p.branch} · </span>
-                    <a
-                      href={p.href}
-                      className="tabular-nums text-ivory/75 transition-colors hover:text-ivory"
-                    >
-                      {p.label}
-                    </a>
+                {contact.branches.map((branch) => (
+                  <span key={branch.name} className="mb-3 block last:mb-0">
+                    <span className="block text-ivory/45">{branch.name}</span>
+                    {branch.address && (
+                      <span className="block">
+                        {branch.address.line1}, {branch.address.city} –{" "}
+                        {branch.address.postalCode}
+                      </span>
+                    )}
+                    {branch.phoneHref && (
+                      <a
+                        href={branch.phoneHref}
+                        className="tabular-nums text-ivory/75 transition-colors hover:text-ivory"
+                      >
+                        {branch.phone}
+                      </a>
+                    )}
                   </span>
                 ))}
                 <a
-                  href={`mailto:${site.email}`}
+                  href={`mailto:${contact.email}`}
                   className="mt-1 block break-all text-ivory/75 transition-colors hover:text-ivory"
                 >
-                  {site.email}
+                  {contact.email}
                 </a>
                 <span className="mt-1.5 block">
-                  {site.hours.map((h) => `${h.days} ${h.time}`).join(" · ")}
+                  {contact.hours.map((h) => `${h.days} ${h.time}`).join(" · ")}
                 </span>
               </address>
             </div>

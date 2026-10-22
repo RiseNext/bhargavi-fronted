@@ -17,100 +17,40 @@ export type Video = {
 
 export const videos: Video[] = [
   {
-    id: "6STwtkvRBIA",
-    title: "Stop Nausea & Dizziness Naturally — a simple acupressure tip",
+    id: "BKnMSEtq6Rk",
+    title: "I Felt Relaxed in Just 5–10 Minutes!",
   },
   {
-    id: "UsKRCXN-jo0",
-    title: "Tired of Skipping Breakfast? Try this fruit bowl plan",
+    id: "ym7HVCi9tX4",
+    title: "Abhyanga Therapy Patient Experience",
   },
   {
-    id: "SP6KeFkfFEc",
-    title: "A simple fruit bowl plan for busy mornings",
+    id: "Tde7BiunYMs",
+    title: "Patient Experience at Bhargavi Health World",
   },
   {
-    id: "xj_5hVlamRQ",
-    title: "Brain development & brain games",
-    featured: true,
+    id: "JSNZRrijxsg",
+    title: "Her Wellness Journey",
   },
   {
-    id: "kOEFJyDlzks",
-    title: "హాయిగా నిద్ర పోవాలంటే..",
-    translation: "Tips for sound sleep",
-    featured: true,
+    id: "uaGMSzRSOjo",
+    title: "Kansa Therapy for Deep Relaxation",
   },
   {
-    id: "R25zlkaIdhY",
-    title: "ఎసిడిటీ తగ్గడానికి చిట్కాలు",
-    translation: "Tips to reduce acidity",
-    featured: true,
+    id: "Yf-qc_s4A5w",
+    title: "Agni Karma Therapy in Ayurveda",
   },
   {
-    id: "t2qYD1cORPU",
-    title: "లో బీపి తగ్గడానికి కలర్ థెరపీ",
-    translation: "Colour therapy for low BP",
-    featured: true,
+    id: "EpJXaBDkUPs",
+    title: "Shiro Vasti Therapy",
   },
   {
-    id: "7rY8IxZ9aIw",
-    title: "హై బీపీ తగ్గడానికి ప్రెషర్ పాయింట్స్",
-    translation: "Pressure points for high BP",
+    id: "-aRuGxjhknw",
+    title: "Netra Tarpana Treatment in Ayurveda",
   },
   {
-    id: "ue4n1KbVypI",
-    title: "మెడ నొప్పి తగ్గడానికి ప్రెషర్ పాయింట్స్",
-    translation: "Pressure points for neck pain",
-  },
-  {
-    id: "cVRToZ-2190",
-    title: "నడుము నొప్పి తగ్గడానికి ఇలా చేయండి",
-    translation: "For lower back pain",
-  },
-  {
-    id: "cIxwaUcG1CE",
-    title: "మడమలలో నొప్పి తగ్గాలంటే",
-    translation: "For heel pain",
-  },
-  {
-    id: "Yera5I2VNEU",
-    title: "Excessive Bleeding సమస్యకు చక్కని పరిష్కారం",
-    translation: "A good solution for excessive bleeding",
-  },
-  {
-    id: "4rE1haPXQ2E",
-    title: "PCOD సమస్యా?! అయితే ఈ సింపుల్ పరిష్కారం",
-    translation: "A simple solution for PCOD",
-    featured: true,
-  },
-  {
-    id: "nt0Ss2HUIuk",
-    title: "ఈ మూడు పనులు చేస్తే మీకు స్ట్రెస్ ఉండదు",
-    translation: "Three things to beat stress",
-  },
-  {
-    id: "pxKUQ0PIqGE",
-    title: "మోకాళ్ళ నొప్పులు తగ్గడానికి చిట్కాలు",
-    translation: "Knee pain tips",
-  },
-  {
-    id: "cBP4xFw0HjU",
-    title: "ఇమ్మ్యూనిటీ పెంచేందుకు, దగ్గును తగ్గించేందుకు సింపుల్ ట్రిక్స్",
-    translation: "Boost immunity, reduce cough",
-  },
-  {
-    id: "vxdqIDbIBwY",
-    title: "తలనొప్పిని రెండు నిమిషాల్లో తగ్గించుకోవడం ఎలా?",
-    translation: "Relieve a headache in two minutes",
-    featured: true,
-  },
-  {
-    id: "E5S_L6dbL9w",
-    title: "ఎమర్జెన్సీ సమయంలో బాడీలో ఆక్సిజన్ లెవెల్ పెంచుకోవడం ఎలా?",
-    translation: "Raise oxygen levels in an emergency",
-  },
-  {
-    id: "cdTut-hzBu4",
-    title: "Bhargavi Health World — trailer",
+    id: "JAq_VcgMTV4",
+    title: "Nasya Therapy Explained",
   },
 ];
 
@@ -125,35 +65,35 @@ export const youtubeWatch = (id: string) =>
 
 export const galleryImages = [
   {
-    src: "https://res.cloudinary.com/iojros3g/image/upload/v1791475648/bhw/dev/gallery/i-img-1.jpg",
-    alt: "Inside Bhargavi Health World, Chikkadpally — clinic photo 1",
+    src: "https://res.cloudinary.com/iojros3g/image/upload/v1792048848/bhw/prod/services/whatsapp-image-2026-10-02-at-3-19-32-pm-1-c9b3c9f826.jpg",
+    alt: "img 1",
   },
   {
-    src: "https://res.cloudinary.com/iojros3g/image/upload/v1791475649/bhw/dev/gallery/i-img-2.jpg",
-    alt: "Inside Bhargavi Health World, Chikkadpally — clinic photo 2",
+    src: "https://res.cloudinary.com/iojros3g/image/upload/v1792048914/bhw/prod/services/whatsapp-image-2026-10-02-at-3-19-32-pm-e8291b9956.jpg",
+    alt: "img 2",
   },
   {
-    src: "https://res.cloudinary.com/iojros3g/image/upload/v1791475650/bhw/dev/gallery/i-img-3.jpg",
-    alt: "Inside Bhargavi Health World, Chikkadpally — clinic photo 3",
+    src: "https://res.cloudinary.com/iojros3g/image/upload/v1792048948/bhw/prod/services/whatsapp-image-2026-10-02-at-3-19-33-pm-1-eed93db8fc.jpg",
+    alt: "img 3",
   },
   {
-    src: "https://res.cloudinary.com/iojros3g/image/upload/v1791475651/bhw/dev/gallery/i-img-4.jpg",
-    alt: "Inside Bhargavi Health World, Chikkadpally — clinic photo 4",
+    src: "https://res.cloudinary.com/iojros3g/image/upload/v1792048985/bhw/prod/services/whatsapp-image-2026-10-02-at-3-19-33-pm-2-6604d1e99a.jpg",
+    alt: "img 4",
   },
   {
-    src: "https://res.cloudinary.com/iojros3g/image/upload/v1791475652/bhw/dev/gallery/i-img-5.jpg",
-    alt: "Inside Bhargavi Health World, Chikkadpally — clinic photo 5",
+    src: "https://res.cloudinary.com/iojros3g/image/upload/v1792049043/bhw/prod/services/whatsapp-image-2026-10-02-at-3-19-33-pm-7d8583ef14.jpg",
+    alt: "img 5",
   },
   {
-    src: "https://res.cloudinary.com/iojros3g/image/upload/v1791475653/bhw/dev/gallery/i-img-6.jpg",
-    alt: "Inside Bhargavi Health World, Chikkadpally — clinic photo 6",
+    src: "https://res.cloudinary.com/iojros3g/image/upload/v1792049073/bhw/prod/services/whatsapp-image-2026-10-02-at-3-19-34-pm-1-ad8c8b7fe0.jpg",
+    alt: "img 6",
   },
   {
-    src: "https://res.cloudinary.com/iojros3g/image/upload/v1791475654/bhw/dev/gallery/i-img-7.jpg",
-    alt: "Inside Bhargavi Health World, Chikkadpally — clinic photo 7",
+    src: "https://res.cloudinary.com/iojros3g/image/upload/v1792049099/bhw/prod/services/whatsapp-image-2026-10-02-at-3-19-34-pm-2-65e77dae21.jpg",
+    alt: "img 7",
   },
   {
-    src: "https://res.cloudinary.com/iojros3g/image/upload/v1791475656/bhw/dev/gallery/i-img-8.jpg",
-    alt: "Inside Bhargavi Health World, Chikkadpally — clinic photo 8",
+    src: "https://res.cloudinary.com/iojros3g/image/upload/v1792049163/bhw/prod/services/whatsapp-image-2026-10-02-at-3-19-35-pm-1-ea6282441e.jpg",
+    alt: "img 8",
   },
 ];

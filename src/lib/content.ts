@@ -42,6 +42,8 @@ import type { Post } from "@/content/posts";
 import type { PageMetaEntry } from "@/content/page-meta";
 import type { PageCopyBlock } from "@/content/page-copy";
 
+import { toDisplayHours, type StructuredDay } from "./hours";
+
 // Pure, secret-free and independently tested against the generator.
 import {
   shapeService,
@@ -479,4 +481,136 @@ export async function getPosts(): Promise<Post[]> {
 
 export async function getPostBySlug(slug: string): Promise<Post | undefined> {
   return (await getPosts()).find((p) => p.slug === slug);
+}
+
+// ---------------------------------------------------------------------------
+// Contact details — the clinic's addresses, numbers, email and hours
+// ---------------------------------------------------------------------------
+
+/**
+ * 🔴 WHY THIS READER EXISTS, when `@/lib/site` already has all of it.
+ *
+ * `site.ts` is GENERATED AT BUILD TIME and committed. Everything in it is
+ * therefore frozen until somebody reruns the generator and redeploys — which
+ * is the exact failure D-042 removed for the nine content collections, and
+ * which site settings were left behind by. The owner edited Bowenpally's
+ * address in the admin panel, the API returned it correctly, and the website
+ * kept showing the old details because the committed file had not moved.
+ *
+ * The surfaces a visitor uses to CONTACT the clinic — the contact page cards,
+ * the map and the footer — read from here instead, so an address or a phone
+ * number published in the admin panel appears as soon as the backend calls
+ * `POST /api/revalidate` for `site-settings`.
+ *
+ * ⚠ `site.ts` is deliberately NOT deleted. Page metadata, the JSON-LD builders
+ * and the brand assets still read it, and those are not request-time concerns.
+ * This reader covers the contact surfaces only; it is not a general migration.
+ */
+
+export type BranchAddress = {
+  line1: string;
+  line2: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  full: string;
+};
+
+export type ContactBranch = {
+  name: string;
+  /** Display form, e.g. "+91 70751 57013". */
+  phone: string;
+  /** `tel:` href for that number — resolved from the settings' phone list. */
+  phoneHref: string;
+  whatsappHref: string;
+  /** Absent while the client has not supplied this branch's address yet. */
+  address?: BranchAddress;
+  /** Absent for a branch with no Maps link saved; callers fall back to search. */
+  mapsUrl?: string;
+};
+
+export type ContactDetails = {
+  branches: ContactBranch[];
+  email: string;
+  whatsappHref: string;
+  hours: Array<{ days: string; time: string }>;
+  /** D-029's resolved site-wide Maps link and embed — the primary clinic. */
+  mapsUrl: string;
+  mapEmbedSrc: string;
+};
+
+type RawPhone = { label: string; href: string; branch: string };
+
+type RawBranch = {
+  name: string;
+  phone?: string | null;
+  whatsapp?: string | null;
+  address?: BranchAddress | null;
+  mapsUrl?: string | null;
+};
+
+type RawSettings = {
+  branches?: RawBranch[];
+  phones?: RawPhone[];
+  email?: string;
+  whatsapp?: { href?: string };
+  hours?: StructuredDay[];
+  mapsUrl?: string;
+  mapEmbedSrc?: string;
+};
+
+export async function getContactDetails(): Promise<ContactDetails> {
+  const s = await getJson<RawSettings>("/api/site-settings", CONTENT_TAGS.settings);
+
+  const phones = s.phones ?? [];
+  const branches = s.branches ?? [];
+
+  if (branches.length === 0) {
+    // Loud for the same reason every other reader here is: an empty list would
+    // publish a contact page with no way to reach the clinic, and exit 0.
+    throw new Error(
+      "GET /api/site-settings returned no branches — the contact page and footer " +
+        "have nothing to show.",
+    );
+  }
+
+  const whatsappHref = s.whatsapp?.href ?? "";
+
+  return {
+    branches: branches.map((b) => {
+      // 🔴 Matched by branch NAME, not by index. D-013 orders `branches` by
+      // sort_order and `phones` by phone_sort_order, and the two are exact
+      // reverses of each other on the live site — zipping them positionally
+      // would print each clinic's address beside the other one's number.
+      const phone = phones.find((p) => p.branch === b.name);
+      return {
+        name: b.name,
+        phone: phone?.label ?? b.phone ?? "",
+        phoneHref: phone?.href ?? "",
+        whatsappHref: b.whatsapp
+          ? `https://api.whatsapp.com/send?phone=${b.whatsapp}&text=hello&lang=en`
+          : whatsappHref,
+        ...(b.address ? { address: b.address } : {}),
+        ...(b.mapsUrl ? { mapsUrl: b.mapsUrl } : {}),
+      };
+    }),
+    email: s.email ?? "",
+    whatsappHref,
+    hours: toDisplayHours(s.hours ?? []),
+    mapsUrl: s.mapsUrl ?? "",
+    mapEmbedSrc: s.mapEmbedSrc ?? "",
+  };
+}
+
+/**
+ * A Maps route for a branch: its own saved link, or a search on the full
+ * address when it has none. Bowenpally's `mapsUrl` is NULL in the branch
+ * record, and an "Open in Maps" that goes nowhere is worse than one that
+ * searches.
+ */
+export function branchMapsHref(branch: ContactBranch): string | undefined {
+  if (branch.mapsUrl) return branch.mapsUrl;
+  if (!branch.address) return undefined;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(branch.address.full)}`;
 }

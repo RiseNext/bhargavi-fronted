@@ -3,13 +3,11 @@
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Field, FormStatus, Honeypot, Select, TextArea } from "./fields";
+import { BranchChoice, type ChoosableBranch } from "./BranchChoice";
 import type { Service } from "@/content/services";
-import { site } from "@/lib/site";
 import { formatDateTime, whatsappUrl } from "@/lib/whatsapp";
 
 type State = "idle" | "choose" | "sent" | "error";
-
-type Branch = (typeof site.branches)[number];
 
 /**
  * Appointment request, delivered over WhatsApp.
@@ -23,10 +21,18 @@ type Branch = (typeof site.branches)[number];
  */
 export function AppointmentForm({
   services,
+  branches,
   defaultService = "",
   compact = false,
 }: {
   services: readonly Service[];
+  /**
+   * 🔴 A PROP, not an import of `site.branches`. The generated module is
+   * frozen at build time, so a branch edited in the admin panel would keep
+   * routing enquiries to the old number until someone redeployed. The server
+   * component above reads these from the API (D-042) and passes them down.
+   */
+  branches: readonly ChoosableBranch[];
   defaultService?: string;
   compact?: boolean;
 }) {
@@ -48,7 +54,7 @@ export function AppointmentForm({
   // Step 2 — the branch tap is the user gesture that opens WhatsApp.
   // Must stay synchronous: an async gap here loses the gesture context
   // and the browser blocks the tab.
-  function sendTo(branch: Branch) {
+  function sendTo(branch: ChoosableBranch) {
     if (!pending) return;
 
     const service = services.find((s) => s.slug === pending.service);
@@ -134,47 +140,14 @@ export function AppointmentForm({
       </label>
 
       {choosing ? (
-        <fieldset className="form-step rounded-lg border border-line bg-sand/60 p-4 sm:p-5">
-          <legend className="sr-only">Choose your branch</legend>
-          <p className="label text-terracotta">One last step</p>
-          <p className="mt-1 text-small text-muted">
-            Which branch would you like to visit?
-          </p>
-
-          <div className={compact ? "mt-4 grid gap-3" : "mt-4 grid gap-3 sm:grid-cols-2"}>
-            {site.branches.map((branch) => (
-              <button
-                key={branch.name}
-                type="button"
-                onClick={() => sendTo(branch)}
-                className="group flex items-center justify-between gap-3 rounded-lg border border-line bg-paper px-4 py-3.5 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-terracotta hover:shadow-md"
-              >
-                <span>
-                  <span className="block font-display text-h4 text-ink">
-                    {branch.name}
-                  </span>
-                  <span className="mt-0.5 block text-small tabular-nums text-muted">
-                    {branch.phone}
-                  </span>
-                </span>
-                <span
-                  aria-hidden="true"
-                  className="text-muted transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-terracotta"
-                >
-                  →
-                </span>
-              </button>
-            ))}
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setState("idle")}
-            className="mt-4 text-small text-muted underline underline-offset-4 transition-colors hover:text-ink"
-          >
-            ← Back to edit details
-          </button>
-        </fieldset>
+        <BranchChoice
+          branches={branches}
+          compact={compact}
+          onPick={sendTo}
+          onBack={() => {
+            setState("idle");
+          }}
+        />
       ) : (
         <Button type="submit" size="lg" className="w-full">
           Send on WhatsApp
@@ -182,7 +155,7 @@ export function AppointmentForm({
       )}
 
       <FormStatus
-        state={state === "choose" ? "idle" : state}
+        state={choosing ? "idle" : state}
         successText="Your request is ready in WhatsApp — press send there and we'll call you back shortly."
         action={
           link && (

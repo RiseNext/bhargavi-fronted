@@ -11,7 +11,7 @@ import { ServiceCard } from "@/components/cards/ServiceCard";
 import { AppointmentForm } from "@/components/forms/AppointmentForm";
 import { whatsappUrl } from "@/lib/whatsapp";
 import { CtaBand } from "@/components/sections/HomeSections";
-import { getServiceBySlug, getServices } from "@/lib/content";
+import { getContactDetails, getServiceBySlug, getServices } from "@/lib/content";
 import { site } from "@/lib/site";
 import { breadcrumbList, serialiseJsonLd } from "@/lib/schema";
 import { hoursShort } from "@/lib/hours";
@@ -55,7 +55,11 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 export default async function ServiceDetailPage({ params }: Params) {
   const { slug } = await params;
-  const [service, services] = await Promise.all([getServiceBySlug(slug), getServices()]);
+  const [service, services, contact] = await Promise.all([
+    getServiceBySlug(slug),
+    getServices(),
+    getContactDetails(),
+  ]);
   // 🔴 An unpublished service is absent from the reader, so revalidating the
   // `services` tag turns its prerendered page into a genuine 404.
   if (!service) notFound();
@@ -206,7 +210,12 @@ export default async function ServiceDetailPage({ params }: Params) {
                   {copy.extra("serviceDetail", "bookingAside", "note")}
                 </p>
                 <div className="mt-block">
-                  <AppointmentForm services={services} defaultService={service.slug} compact />
+                  <AppointmentForm
+                    services={services}
+                    branches={contact.branches}
+                    defaultService={service.slug}
+                    compact
+                  />
                 </div>
               </div>
 

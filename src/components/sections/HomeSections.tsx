@@ -15,6 +15,8 @@ import { AppointmentForm } from "@/components/forms/AppointmentForm";
 
 import { site } from "@/lib/site";
 import {
+  branchMapsHref,
+  getContactDetails,
   getFaqs,
   getFeaturedTestimonials,
   getFeaturedVideos,
@@ -370,21 +372,51 @@ export async function Testimonials() {
    ================================================================ */
 
 export async function AppointmentBand() {
-  const services = await getServices();
+  const [services, contact] = await Promise.all([getServices(), getContactDetails()]);
 
   /**
    * The three contact rows. Only the LABELS are stored — every value and href
-   * is a live expression (`site.phones[0]`, `site.whatsapp.href`,
-   * `site.address.full`, `site.mapsUrl`), and freezing any of them would stop
-   * the row tracking the branch record it comes from. The arrays are zipped by
-   * position, so a stored row count that no longer matches the code is a build
-   * failure rather than a silently mislabelled row.
+   * is a live expression read from the API, and freezing any of them would
+   * stop the row tracking the branch record it comes from. The arrays are
+   * zipped by position, so a stored row count that no longer matches the code
+   * is a build failure rather than a silently mislabelled row.
+   *
+   * 🔴 BOTH BRANCHES, not one. "Call" printed `site.phones[0]` and "Visit"
+   * printed `site.address.full` — D-029's single resolved address, which is
+   * Chikkadpally's. So the band beside the booking form advertised ONE clinic
+   * while the form it sits next to asks the visitor to choose between TWO.
+   * Each row now carries an entry per branch.
+   *
+   * ⚠ The row COUNT is unchanged at three, which is what keeps the stored
+   * labels ("Call", "WhatsApp", "Visit") zipped to the right destinations. A
+   * row per branch would have broken that contract and the length check below.
    */
   const rowLabels = copy.items("home", "appointmentBand", "rows");
-  const rowTargets = [
-    { v: site.phones[0].label, href: site.phones[0].href },
-    { v: "Chat with the clinic", href: site.whatsapp.href },
-    { v: site.address.full, href: site.mapsUrl },
+  const rowTargets: { entries: { term?: string; v: string; href: string }[] }[] = [
+    {
+      entries: contact.branches
+        .filter((b) => b.phoneHref)
+        .map((b) => ({ term: b.name, v: b.phone, href: b.phoneHref })),
+    },
+    {
+      entries: [{ v: "Chat with the clinic", href: contact.whatsappHref }],
+    },
+    {
+      // ⚠ Not `address.full`. That carries the state and the country too, so
+      // each clinic wrapped to three lines here and the band turned into a
+      // wall of address. The street and the city are what someone scanning
+      // for "which one is near me" actually needs; the contact page cards
+      // carry the complete address.
+      entries: contact.branches
+        .filter((b) => b.address)
+        .map((b) => ({
+          term: b.name,
+          v: b.address
+            ? `${b.address.line1}, ${b.address.city} – ${b.address.postalCode}`
+            : "",
+          href: branchMapsHref(b) ?? contact.mapsUrl,
+        })),
+    },
   ];
   if (rowLabels.length !== rowTargets.length) {
     throw new Error(
@@ -416,18 +448,33 @@ export async function AppointmentBand() {
               ...target,
             })).map((row, i) => (
               <Reveal key={row.k} delay={i * 80}>
-                <li>
-                  <a
-                    href={row.href}
-                    target={row.href.startsWith("http") ? "_blank" : undefined}
-                    rel={row.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="group grid gap-1 py-4 sm:grid-cols-[minmax(0,7rem)_minmax(0,1fr)] sm:items-baseline sm:gap-4"
-                  >
-                    <span className="label text-terracotta-soft">{row.k}</span>
-                    <span className="text-body text-ivory/85 transition-colors group-hover:text-ivory">
-                      {row.v}
-                    </span>
-                  </a>
+                {/* The label sits in its own column and the branch entries
+                    stack beside it, so two numbers or two addresses line up
+                    under one heading instead of repeating it. */}
+                <li className="grid gap-1 py-4 sm:grid-cols-[minmax(0,7rem)_minmax(0,1fr)] sm:gap-4">
+                  <span className="label self-start pt-1 text-terracotta-soft">{row.k}</span>
+                  <span className="space-y-2.5">
+                    {row.entries.map((entry) => (
+                      <a
+                        key={entry.v}
+                        href={entry.href}
+                        target={entry.href.startsWith("http") ? "_blank" : undefined}
+                        rel={
+                          entry.href.startsWith("http") ? "noopener noreferrer" : undefined
+                        }
+                        className="group block"
+                      >
+                        {entry.term && (
+                          <span className="block text-small text-ivory/45">
+                            {entry.term}
+                          </span>
+                        )}
+                        <span className="block text-body text-ivory/85 transition-colors group-hover:text-ivory">
+                          {entry.v}
+                        </span>
+                      </a>
+                    ))}
+                  </span>
                 </li>
               </Reveal>
             ))}
@@ -443,7 +490,7 @@ export async function AppointmentBand() {
               {copy.noteWithRequiredGlyph("home", "appointmentBand", "formCardNote")}
             </p>
             <div className="mt-block">
-              <AppointmentForm services={services} />
+              <AppointmentForm services={services} branches={contact.branches} />
             </div>
           </div>
         </Reveal>

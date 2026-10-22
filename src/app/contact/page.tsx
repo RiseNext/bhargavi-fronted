@@ -4,13 +4,11 @@ import { metadataFor } from "@/lib/page-metadata";
 import { PageHero } from "@/components/ui/PageHero";
 import { Section, SectionHead, Wrap } from "@/components/ui/Section";
 import { Reveal } from "@/components/ui/Reveal";
-import { ArrowLink } from "@/components/ui/Button";
 import { OpenStatus } from "@/components/ui/OpenStatus";
 import { Accordion } from "@/components/ui/Accordion";
 import { AppointmentForm } from "@/components/forms/AppointmentForm";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { cn } from "@/lib/cn";
-import { site } from "@/lib/site";
 import * as copy from "@/lib/copy";
 import { branchMapsHref, getContactDetails, getFaqs, getServices } from "@/lib/content";
 
@@ -314,60 +312,56 @@ export default async function ContactPage() {
         </Wrap>
       </Section>
 
-      {/* Map + form — the map and message block sit left, the appointment
-          form right. The form keeps the wider of the two columns. */}
-      <Section tone="sand">
-        <Wrap className="grid gap-block lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-          <div className="flex flex-col gap-gutter">
-            <Reveal delay={90}>
-              <div className="overflow-hidden rounded-xl border border-line bg-paper">
-                <iframe
-                  src={contact.mapEmbedSrc}
-                  /* Names the clinic the embed actually shows — D-029 resolves
-                     one map for the practice, and the page now lists two. */
-                  title={`Map showing ${site.name}, ${clinics[0]?.name ?? ""}`}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  className="block aspect-4/3 w-full border-0 sm:aspect-16/10"
-                />
-                {/* The embed is not clickable through to directions, so the
-                    route out sits under it. */}
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-[clamp(1rem,0.8rem+0.8vw,1.5rem)] py-3.5">
-                  <p className="text-small text-muted">
-                    {copy.extra("contact", "map", "captionBelow")}
-                  </p>
-                  <ArrowLink href={contact.mapsUrl} external>
-                    Get directions
-                  </ArrowLink>
-                </div>
-              </div>
-            </Reveal>
+      {/*
+        The two forms.
 
-            <Reveal delay={150}>
-              <div className="rounded-xl bg-walnut p-[clamp(1.25rem,0.9rem+1.8vw,2.5rem)] text-ivory/70">
-                <h2 className="font-display text-h3 text-ivory">
-                  {copy.heading("contact", "messageBlock")}
-                </h2>
-                <p className="mt-2 text-small text-ivory/55">
-                  {copy.text("contact", "messageBlock", "lead")}
-                </p>
-                <div className="mt-block [&_input]:border-ivory/25 [&_input]:text-ivory [&_input]:placeholder:text-ivory/35 [&_label]:text-ivory/55 [&_select]:border-ivory/25 [&_select]:text-ivory [&_textarea]:border-ivory/25 [&_textarea]:text-ivory">
-                  <ContactForm tone="dark" />
-                </div>
+        🔴 THE MAP IS GONE, at the client's request. It showed ONE location —
+        D-029 resolves a single `mapEmbedSrc` for the practice — on a page
+        that now lists two clinics, and every card above already carries its
+        own "Open in Maps" link, so nothing was lost but the contradiction.
+
+        ⚠ `lg:contents` IS WHAT ALIGNS THE TWO COLUMNS. The headings and the
+        form cards are laid out as FOUR items in one two-column, two-row grid
+        rather than as two independent columns, so both headings share a row
+        and both cards start on exactly the same line however differently the
+        two titles wrap. Dropping back below `lg` turns `contents` off and the
+        DOM order — heading, card, heading, card — stacks correctly.
+      */}
+      <Section tone="sand">
+        <Wrap className="grid gap-block lg:grid-cols-2 lg:grid-rows-[auto_1fr] lg:gap-x-block lg:gap-y-stack">
+          <div className="flex flex-col gap-stack lg:contents">
+            <SectionHead
+              align="left"
+              className="lg:col-start-1 lg:row-start-1"
+              /* ⚠ `maybe`, not `text`. `contact.messageBlock` has a title and
+                 a lead in the CMS but no label — `copy.text` throws on a
+                 field the database does not have. The fallback keeps this
+                 heading structurally identical to the appointment heading
+                 beside it, which is what makes the two titles sit on the
+                 same line; an editor adding a label in the admin panel
+                 overrides it. */
+              label={copy.maybe("contact", "messageBlock", "label") ?? "Leave a message"}
+              title={copy.text("contact", "messageBlock", "title")}
+              lead={copy.text("contact", "messageBlock", "lead")}
+            />
+            <Reveal delay={150} className="lg:col-start-1 lg:row-start-2">
+              <div className="h-full rounded-xl bg-walnut p-[clamp(1.25rem,0.9rem+1.8vw,2.5rem)] text-ivory/70 [&_input]:border-ivory/25 [&_input]:text-ivory [&_input]:placeholder:text-ivory/35 [&_label]:text-ivory/55 [&_select]:border-ivory/25 [&_select]:text-ivory [&_textarea]:border-ivory/25 [&_textarea]:text-ivory">
+                <ContactForm tone="dark" branches={contact.branches} />
               </div>
             </Reveal>
           </div>
 
-          <div>
+          <div className="flex flex-col gap-stack lg:contents">
             <SectionHead
               align="left"
+              className="lg:col-start-2 lg:row-start-1"
               label={copy.text("contact", "appointmentBlock", "label")}
               title={copy.text("contact", "appointmentBlock", "title")}
               lead={copy.text("contact", "appointmentBlock", "lead")}
             />
-            <Reveal delay={110}>
-              <div className="mt-block rounded-xl bg-paper p-[clamp(1.25rem,0.9rem+1.8vw,2.5rem)]">
-                <AppointmentForm services={services} />
+            <Reveal delay={110} className="lg:col-start-2 lg:row-start-2">
+              <div className="h-full rounded-xl bg-paper p-[clamp(1.25rem,0.9rem+1.8vw,2.5rem)]">
+                <AppointmentForm services={services} branches={contact.branches} />
               </div>
             </Reveal>
           </div>

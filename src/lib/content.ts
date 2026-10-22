@@ -523,6 +523,15 @@ export type ContactBranch = {
   phone: string;
   /** `tel:` href for that number — resolved from the settings' phone list. */
   phoneHref: string;
+  /**
+   * The raw WhatsApp number for this branch, e.g. "+917075157013".
+   *
+   * ⚠ Kept ALONGSIDE `whatsappHref` because the two have different callers:
+   * the href is a plain "chat to us" link, while `whatsappUrl()` needs the
+   * bare number so it can attach a prefilled message. Deriving one from the
+   * other at the call site would mean re-parsing a URL that was just built.
+   */
+  whatsapp: string;
   whatsappHref: string;
   /** Absent while the client has not supplied this branch's address yet. */
   address?: BranchAddress;
@@ -588,6 +597,7 @@ export async function getContactDetails(): Promise<ContactDetails> {
         name: b.name,
         phone: phone?.label ?? b.phone ?? "",
         phoneHref: phone?.href ?? "",
+        whatsapp: b.whatsapp ?? "",
         whatsappHref: b.whatsapp
           ? `https://api.whatsapp.com/send?phone=${b.whatsapp}&text=hello&lang=en`
           : whatsappHref,

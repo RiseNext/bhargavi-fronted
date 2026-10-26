@@ -3,7 +3,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 type Variant = "solid" | "accent" | "outline" | "inverse";
-type Size = "sm" | "md" | "lg";
+type Size = "sm" | "md" | "lg" | "xl";
 
 const base =
   "group/btn inline-flex items-center justify-center gap-2.5 rounded-full font-sans font-medium " +
@@ -22,6 +22,15 @@ const sizes: Record<Size, string> = {
   sm: "px-[clamp(0.9rem,0.7rem+0.6vw,1.2rem)] py-2.5 text-small",
   md: "px-[clamp(1.15rem,0.85rem+1vw,1.75rem)] py-[clamp(0.7rem,0.6rem+0.4vw,0.95rem)] text-small",
   lg: "px-[clamp(1.4rem,1rem+1.5vw,2.25rem)] py-[clamp(0.85rem,0.7rem+0.6vw,1.15rem)] text-[0.9375rem]",
+  /**
+   * The hero's two primary actions, and nothing else so far.
+   *
+   * ⚠ A SIZE, not a one-off `className` on the hero. Padding and type size
+   * have to move together for a pill to stay a pill — raise the font alone
+   * and the label crowds the edges — so the pairing belongs in this map where
+   * the other three sizes are, not spread across a call site.
+   */
+  xl: "px-[clamp(1.6rem,1.1rem+2vw,2.75rem)] py-[clamp(1rem,0.8rem+0.8vw,1.4rem)] text-[1.0625rem]",
 };
 
 type Common = {

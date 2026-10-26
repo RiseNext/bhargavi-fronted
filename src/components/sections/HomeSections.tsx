@@ -47,7 +47,6 @@ export function Intro() {
   // the square one beside the Since card.
   const lead = copy.item("home", "intro", "images", 0);
   const square = copy.item("home", "intro", "images", 1);
-  const since = copy.extraObject("home", "intro", "sinceCard");
   const introCta = copy.action("home", "intro");
 
   return (
@@ -64,23 +63,28 @@ export function Intro() {
               className="aspect-4/5 w-full"
             />
           </Reveal>
+          {/*
+            🔴 THE "SINCE 2017" CARD IS GONE, at the client's request to take
+            the year off the site. A card reading "Since / Practising in
+            Chikkadpally" with the figure removed says nothing, so the card
+            goes rather than the number alone.
+
+            ⚠ The second image STAYS and now spans the full column. D-027
+            gives `home.intro` two image rows, and dropping the card without
+            widening this would have left a half-width square beside dead
+            space — or, worse, tempted someone to delete the image row and
+            leave an admin-managed asset rendering nowhere. The ratio widens
+            to 16/10 because a full-width square under the 4:5 lead image made
+            the column enormously tall.
+          */}
           <Reveal delay={120}>
-            <div className="mt-gutter grid grid-cols-2 gap-gutter">
-              <Frame
-                src={copy.itemText(square, "image", "home.intro.images[1]")}
-                alt={copy.itemText(square, "alt", "home.intro.images[1]")}
-                radius="lg"
-                sizes="(min-width: 1024px) 22vw, 45vw"
-                className="aspect-square w-full"
-              />
-              <div className="flex flex-col justify-between rounded-lg border border-line p-[clamp(1rem,0.8rem+0.9vw,1.5rem)]">
-                <span className="label text-terracotta">{since.label}</span>
-                <span className="font-display text-[clamp(2rem,1.4rem+2.4vw,3.25rem)] leading-none text-ink">
-                  {since.value}
-                </span>
-                <span className="text-small text-muted">{since.caption}</span>
-              </div>
-            </div>
+            <Frame
+              src={copy.itemText(square, "image", "home.intro.images[1]")}
+              alt={copy.itemText(square, "alt", "home.intro.images[1]")}
+              radius="lg"
+              sizes="(min-width: 1024px) 45vw, 92vw"
+              className="mt-gutter aspect-16/10 w-full"
+            />
           </Reveal>
         </div>
 
@@ -188,7 +192,10 @@ export async function StatsBand() {
               <dt className="sr-only">{stat.label}</dt>
               <dd>
                 <span className="block font-display text-[clamp(2.5rem,1.6rem+3.6vw,4.5rem)] leading-none tracking-tight text-ink">
-                  <CountUp value={stat.value} suffix={stat.suffix} />
+                  {/* Same rule as the hero: an unset suffix becomes "+" so
+                      every figure reads as a minimum, while a suffix the
+                      admin actually set is rendered as entered. */}
+                  <CountUp value={stat.value} suffix={stat.suffix || "+"} />
                 </span>
                 <span className="mt-3 block text-label uppercase tracking-[0.16em] text-muted">
                   {stat.label}

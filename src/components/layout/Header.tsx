@@ -178,13 +178,20 @@ export function Header({ services }: { services: readonly Service[] }) {
             href="/"
             className="group flex shrink-0 items-center gap-3 lg:justify-self-start"
           >
+            {/*
+              ⚠ THE MARK ONLY. The client asked for a bigger logo, not bigger
+              branding — the "Bhargavi / Health World" lockup beside it keeps
+              its own type scale, so only this clamp moves. Raised from
+              2.4–3.1rem; `width`/`height` are the intrinsic hints Next needs
+              and were already generous enough not to upscale.
+            */}
             <Image
               src={site.logo}
               alt=""
-              width={64}
-              height={64}
+              width={96}
+              height={96}
               priority
-              className="aspect-square w-[clamp(2.4rem,2rem+1.3vw,3.1rem)] rounded-full object-contain"
+              className="aspect-square w-[clamp(3.1rem,2.5rem+1.9vw,4.25rem)] rounded-full object-contain"
             />
             <span className="leading-none">
               <span className="block font-display text-[clamp(1.05rem,0.95rem+0.4vw,1.3rem)] font-semibold tracking-tight text-ink">

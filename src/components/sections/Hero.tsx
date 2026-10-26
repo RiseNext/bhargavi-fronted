@@ -52,7 +52,15 @@ export async function Hero() {
   // ✅ D-023 — `showInHero` selects the rows, `heroLabel ?? label` is the rule.
   const heroStats = stats
     .filter((s) => s.showInHero)
-    .map((s) => ({ k: `${String(s.value)}${s.suffix}`, v: s.heroLabel ?? s.label }));
+    .map((s) => ({
+      // ⚠ `|| "+"`, not a hard-coded "+". Every figure on the site should
+      // read as a minimum rather than an exact count, so a stat stored with
+      // NO suffix gets one — but a stat whose suffix the admin actually set
+      // ("%", "k", anything) is still rendered as entered. Hard-coding would
+      // make the stored field unusable.
+      k: `${String(s.value)}${s.suffix || "+"}`,
+      v: s.heroLabel ?? s.label,
+    }));
 
   return (
     <section className="relative overflow-clip pb-block pt-[calc(var(--spacing-nav)+var(--spacing-block))]">
@@ -75,17 +83,55 @@ export async function Hero() {
           {/* Everything in this column is above the fold, so it plays on load
               rather than waiting for a scroll that may never come. */}
           <Reveal immediate>
-            <p className="label text-terracotta">
-              <Seed />
-              {/* Both clinics, named from the live branch records rather
-                  than retyped — D-013 owns their order, and a third branch
-                  would appear here with no code change. */}
-              {site.name} · {contact.branches.map((b) => b.name).join(" & ")},
-              Hyderabad
+            {/*
+              Two deliberate lines: the practice name, then where it practises.
+
+              ⚠ `.label` is an `inline-flex` row (it exists to sit the Seed
+              glyph beside a single line of small caps), so a `<br>` or a
+              `block` child inside it would be laid out as another flex item
+              and stay on the same line. The fix is to give it exactly ONE
+              child — the stack below — and rebuild the Seed's row inside the
+              first line, where it belongs anyway: the glyph should sit
+              against the name, not centred against a two-line block.
+            */}
+            <p className="label !items-start text-terracotta">
+              {/* ⚠ `!items-start`. `.label` hard-codes `align-items: center`,
+                  which against a two-line stack would float the glyph into
+                  the gap between the lines. `items-start` alone is a utility
+                  of equal specificity, so whether it wins depends on emitted
+                  source order — the important flag removes that coin-toss.
+                  The small top offset optically centres the glyph on the
+                  cap-height of line one rather than its line box. */}
+              <Seed className="mt-[0.15em] shrink-0" />
+              {/* Both text lines are ONE flex item, so they share a left edge
+                  and sit indented past the glyph — a hanging glyph rather
+                  than a ragged two-line block. */}
+              <span className="block">
+                <span className="block">{site.name} ·</span>
+                {/* Both clinics, named from the live branch records rather
+                    than retyped — D-013 owns their order, and a third branch
+                    would appear here with no code change. */}
+                {/* ⚠ Tighter tracking below `sm`. `.label` sets 0.16em, which
+                    at 360px pushed "Hyderabad" onto a THIRD line — three lines
+                    of small caps stacked above a three-line headline. 0.09em
+                    holds it at two lines on the narrowest phones and the full
+                    tracking returns as soon as there is room. */}
+                <span className="mt-1.5 block tracking-[0.09em] sm:tracking-[0.16em]">
+                  {contact.branches.map((b) => b.name).join(" & ")}, Hyderabad
+                </span>
+              </span>
             </p>
           </Reveal>
 
-          <h1 className="mt-stack max-w-[13ch] text-d1 text-ink">
+          {/*
+            ⚠ NOT `text-d1`. The token's ceiling is 7rem, which at the
+            client's request is larger than this headline should be — but the
+            token is a site-wide display size, so editing it would resize
+            anything else that adopts it later. The clamp below is the same
+            shape, scaled down, and keeps the fluid behaviour between the two
+            ends rather than stepping at a breakpoint.
+          */}
+          <h1 className="mt-stack max-w-[13ch] text-[clamp(2.25rem,1.2rem+5.2vw,5rem)] font-normal leading-[0.98] tracking-[-0.03em] text-ink">
             <Wipe as="span" immediate className="block">
               Wellness
             </Wipe>
@@ -98,11 +144,32 @@ export async function Hero() {
           </h1>
 
           <Reveal immediate delay={340}>
-            <div className="mt-block flex flex-wrap gap-3">
-              <ButtonLink href={heroCta.href} size="lg">
+            {/*
+              🔴 FULL WIDTH ON PHONES, content width from `sm` up.
+
+              `flex-wrap` alone let the two pills wrap to their own lines at
+              their own content widths — "Book an appointment" wide, "See
+              therapies" visibly narrower — which reads as two unrelated
+              controls stacked crookedly rather than a primary and a secondary
+              action. Matching their width fixes the ragged edge and gives
+              each a full-width tap target, which is what a phone wants
+              anyway. Above `sm` there is room for a row, so they shrink back
+              to their labels.
+
+              ⚠ `mt-stack` below `sm`: at `mt-block` the gap under a headline
+              that is already three lines tall pushed the buttons most of a
+              screen away from it.
+            */}
+            <div className="mt-stack flex flex-col gap-3 sm:mt-block sm:flex-row sm:flex-wrap sm:items-center">
+              <ButtonLink href={heroCta.href} size="xl" className="w-full sm:w-auto">
                 {heroCta.label}
               </ButtonLink>
-              <ButtonLink href={heroCta2.href} variant="outline" size="lg">
+              <ButtonLink
+                href={heroCta2.href}
+                variant="outline"
+                size="xl"
+                className="w-full sm:w-auto"
+              >
                 {heroCta2.label}
               </ButtonLink>
             </div>

@@ -55,11 +55,26 @@ const SLIDES = [
 /** The service that gets a collection, and the one that deliberately does not. */
 const WITH_SLIDER = "acupuncture";
 const WITHOUT_SLIDER = "panchakarma";
+/** A third service whose collection one test sets to exactly one slide. */
+const WITH_SINGLE = "acupressure";
+
+/**
+ * The collection served for `WITH_SINGLE`, mutable between navigations.
+ *
+ * `undefined` means the service is served exactly as the fixture has it — no
+ * `images` key at all — which is what the API sends for a service nobody has
+ * built a collection for.
+ */
+const single = { images: undefined };
 
 function servicesPayload() {
-  const items = SERVICES_FIXTURE.items.map((s) =>
-    s.slug === WITH_SLIDER ? { ...s, images: SLIDES } : s,
-  );
+  const items = SERVICES_FIXTURE.items.map((s) => {
+    if (s.slug === WITH_SLIDER) return { ...s, images: SLIDES };
+    if (s.slug === WITH_SINGLE && single.images !== undefined) {
+      return { ...s, images: single.images };
+    }
+    return s;
+  });
   return { items };
 }
 
@@ -171,6 +186,86 @@ function readState(page) {
   });
 }
 
+/**
+ * 🔴 THE RENDERED GEOMETRY OF EVERY SLIDE.
+ *
+ * `readState` above reads the accessibility surface — dot count, which dot is
+ * current, the live-region text. All of that was perfectly correct while the
+ * slider showed a BLANK frame in production, because the defect was a CSS
+ * position collapse and not a state error: slide 0 carried `i === 0 &&
+ * "static"`, Tailwind emits `.static` after `.absolute`, so `position: static`
+ * won, `inset-0` stopped applying, and the slide collapsed to the 4px of its
+ * own edge while the arrows and dots kept rendering perfectly.
+ *
+ * Measured on production before the fix: slide 0 `position: static`, box
+ * 1207×4, image box 1203×0; slide 1 a correct 1207×679.
+ *
+ * ⚠ This works with image requests ABORTED, which is why it belongs in this
+ * harness. A `fill` image is absolutely positioned at 100%/100% whether or not
+ * its bytes ever arrive, so the box is a pure layout fact and the test needs
+ * no network and no real asset.
+ */
+function readGeometry(page) {
+  return page.evaluate(() => {
+    const region = document.querySelector('[aria-roledescription="carousel"]');
+    if (!region) return { present: false };
+    const stack = region.firstElementChild;
+    const stackBox = stack.getBoundingClientRect();
+    return {
+      present: true,
+      stack: { width: Math.round(stackBox.width), height: Math.round(stackBox.height) },
+      slides: [...stack.children].map((el) => {
+        const box = el.getBoundingClientRect();
+        const img = el.querySelector("img");
+        const imgBox = img ? img.getBoundingClientRect() : null;
+        return {
+          position: getComputedStyle(el).position,
+          opacity: Number(getComputedStyle(el).opacity),
+          width: Math.round(box.width),
+          height: Math.round(box.height),
+          imgHeight: imgBox ? Math.round(imgBox.height) : null,
+          imgWidth: imgBox ? Math.round(imgBox.width) : null,
+        };
+      }),
+    };
+  });
+}
+
+/** Asserts the slide at `active` actually occupies the slider's box. */
+function assertActiveSlideFillsBox(geometry, active, where) {
+  assert.equal(geometry.present, true, `${where}: expected a carousel`);
+  assert.ok(geometry.stack.height > 100, `${where}: the stack collapsed to ${String(geometry.stack.height)}px`);
+
+  for (const [i, slide] of geometry.slides.entries()) {
+    // Not one of them may be `static`: that is the exact defect, and it is
+    // worth failing on the cause as well as on the symptom.
+    assert.notEqual(
+      slide.position,
+      "static",
+      `${where}: slide ${String(i)} is position:static, so inset-0 does not apply and it collapses`,
+    );
+    // Every slide is stacked on the same box, visible or not, because they
+    // cross-fade. A zero-height slide is the bug whichever one it is.
+    assert.ok(
+      slide.height > 100,
+      `${where}: slide ${String(i)} box is ${String(slide.width)}x${String(slide.height)}`,
+    );
+    assert.ok(
+      slide.imgHeight !== null && slide.imgHeight > 100,
+      `${where}: slide ${String(i)} image box is ${String(slide.imgWidth)}x${String(slide.imgHeight)}`,
+    );
+  }
+
+  const shown = geometry.slides[active];
+  assert.ok(shown, `${where}: no slide at index ${String(active)}`);
+  assert.equal(shown.opacity, 1, `${where}: slide ${String(active)} is not the visible one`);
+  // Within a pixel of the container: the visible frame must BE the frame.
+  assert.ok(
+    Math.abs(shown.height - geometry.stack.height) <= 2,
+    `${where}: visible slide is ${String(shown.height)}px inside a ${String(geometry.stack.height)}px box`,
+  );
+}
+
 const clickNext = (page) =>
   page.evaluate(() => {
     const buttons = [...document.querySelectorAll("button")];
@@ -246,6 +341,57 @@ test("the image slider, in a real browser", async (t) => {
       const state = await readState(page);
       assert.equal(state.current, 1);
       assert.match(state.status, /Image 2 of 3/);
+    });
+
+    await t.test("🔴 the visible slide actually fills the frame — no blank slide", async () => {
+      // The production defect: arrows and dots correct, image area empty.
+      assertActiveSlideFillsBox(await readGeometry(page), 1, "on load");
+    });
+
+    await t.test("🔴 EVERY slide fills the frame, index 0 included", async () => {
+      // Index 0 is the one that collapsed, and it is the opening frame of
+      // every collection that has not chosen a different main image — so the
+      // default state of the feature was the broken one. Stepping through all
+      // three indices is what makes that impossible to reintroduce.
+      for (let i = 0; i < SLIDES.length; i += 1) {
+        await clickDot(page, i);
+        await settle(200);
+        const state = await readState(page);
+        assert.equal(state.current, i, `dot ${String(i)} did not become current`);
+        assertActiveSlideFillsBox(await readGeometry(page), i, `slide ${String(i)} active`);
+      }
+
+      // ⚠ Put the slider back on the opening slide before leaving.
+      //
+      // The arrow cases below run in sequence from the state this leaves, and
+      // assert absolute indices: inserting a case that walks the dots and
+      // stops on the last one silently moved their starting point and failed
+      // three of them. Restoring is cheaper than making every later case
+      // re-establish its own position.
+      await clickDot(page, 1);
+      await settle(200);
+      assert.equal((await readState(page)).current, 1, "failed to restore the opening slide");
+    });
+
+    await t.test("the frame keeps one height across every slide", async () => {
+      // A slider that resizes the page as it advances is its own defect: the
+      // container owns the aspect ratio precisely so it cannot.
+      const heights = [];
+      for (let i = 0; i < SLIDES.length; i += 1) {
+        await clickDot(page, i);
+        await settle(200);
+        heights.push((await readGeometry(page)).stack.height);
+      }
+      assert.equal(
+        new Set(heights).size,
+        1,
+        `the frame changed height between slides: ${heights.join(", ")}`,
+      );
+
+      // Same reason as above: leave the sequence where the next case expects it.
+      await clickDot(page, 1);
+      await settle(200);
+      assert.equal((await readState(page)).current, 1, "failed to restore the opening slide");
     });
 
     await t.test("the next arrow advances", async () => {
@@ -335,6 +481,54 @@ test("the image slider, in a real browser", async (t) => {
       await page.emulateMediaFeatures([
         { name: "prefers-reduced-motion", value: "no-preference" },
       ]);
+    });
+
+    await t.test("🔴 a slide whose image never loads still holds its frame", async () => {
+      /*
+       * Every image request in this suite is aborted, so EVERY slide here is
+       * already the "image failed to load" case — which is the point. A frame
+       * that depended on its bytes to have a size would collapse, and that is
+       * how a single dead Cloudinary asset would otherwise blank one slide of
+       * an otherwise healthy slider.
+       *
+       * What a visitor sees instead is `Frame`'s own `bg-sand` panel at the
+       * correct size: a quiet gap in a photo strip rather than a broken-image
+       * icon or a collapsed layout. Deliberately NOT silently dropping the
+       * slide — the dots would then disagree with the collection the owner
+       * saved, and a missing asset is something they should be able to see.
+       */
+      await page.goto(url, { waitUntil: "networkidle2", timeout: 120_000 });
+      const geometry = await readGeometry(page);
+      assertActiveSlideFillsBox(geometry, 1, "with no image bytes at all");
+      for (const [i, slide] of geometry.slides.entries()) {
+        assert.ok(
+          slide.imgHeight > 100,
+          `slide ${String(i)} lost its box when the image failed: ${String(slide.imgHeight)}px`,
+        );
+      }
+      // And it must not have thrown.
+      assert.deepEqual(consoleErrors, [], "a failed image must not raise a page error");
+    });
+
+    await t.test("🔴 a one-slide collection renders a plain frame, not a carousel", async () => {
+      // The degradation guarantee from the other direction: a collection of
+      // one must be indistinguishable from the single image the page had
+      // before the feature existed — no arrows, no dots, no timer.
+      single.images = [SLIDES[0]];
+      try {
+        await page.goto(`${next.base}/services/${WITH_SINGLE}`, {
+          waitUntil: "networkidle2",
+          timeout: 120_000,
+        });
+        const state = await readState(page);
+        assert.equal(state.present, false, "one slide must not render a carousel");
+        const html = await page.content();
+        assert.ok(!html.includes("Next image"), "no arrows expected for one slide");
+        assert.ok(!html.includes("Show image 1 of"), "no dots expected for one slide");
+        assert.ok(html.includes(SLIDES[0].alt), "the single slide's own alt text must render");
+      } finally {
+        single.images = undefined;
+      }
     });
 
     await t.test("🔴 a service with no collection shows no slider controls", async () => {

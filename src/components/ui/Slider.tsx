@@ -48,6 +48,16 @@ export function Slider({
   slides: readonly Slide[] | undefined;
   /** Names the carousel for screen readers, e.g. "Acupressure treatment photos". */
   label: string;
+  /**
+   * 🔴 MUST SIZE THE BOX — an aspect-ratio class, or a height.
+   *
+   * On the single-slide path this goes straight to `Frame`, which has always
+   * needed the caller to give it a box. On the multi-slide path every slide is
+   * `absolute inset-0` inside a container that carries only this class, so a
+   * caller that passes no sizing leaves the container at zero height and the
+   * slider renders nothing. `tests/service-slider.test.mjs` measures the
+   * rendered geometry, so a regression here fails rather than going quiet.
+   */
   className?: string;
   sizes?: string;
   priority?: boolean;
@@ -159,18 +169,54 @@ export function Slider({
         }
       }}
     >
-      {/* The stack. The container owns the aspect ratio, exactly as the single
-          `Frame` did, so swapping slides cannot change the page's height. */}
+      {/*
+        The stack. `className` owns the aspect ratio — exactly as it does on
+        the single-slide path above, where it is handed straight to `Frame` —
+        so swapping slides cannot change the page's height.
+
+        🔴 EVERY SLIDE IS `absolute inset-0`. THE FIRST ONE ESPECIALLY.
+
+        It used to carry `i === 0 && "static"`, on the theory that the first
+        slide should sit in flow and give the box its height. Two things were
+        wrong with that, and together they blanked the slider:
+
+          · The container already has the height. Both call sites pass an
+            aspect-ratio class (`aspect-4/5 w-full sm:aspect-16/9` on a service
+            page, `aspect-4/3 w-full sm:aspect-16/10` on the home hero), so
+            nothing needed to be in flow to establish it.
+          · `static` and `absolute` are both position utilities of equal
+            specificity, and Tailwind emits `.static` AFTER `.absolute`, so
+            `static` won. With `position: static`, `inset-0` stops applying:
+            the slide no longer fills the container, its `Frame` child's
+            `h-full` resolves against an auto-height parent, and `Frame`'s own
+            child is a `fill` image that is absolutely positioned and
+            contributes no height. The slide collapsed to the 4px of its edge.
+
+        Measured on production before the fix: slide 0 reported
+        `position: static`, a box of 1207×4 and an image box of 1203×0, while
+        slide 1 was a correct 1207×679. So the slider rendered a blank frame
+        whenever slide 0 was the active one — which is the OPENING frame of
+        every collection that has not chosen a different main image, and of
+        Panchakarma, whose main image is also its first.
+
+        The unit tests could not see this: they cover `lib/slider.ts`, which
+        decides WHICH slide shows, and the browser test asserted the
+        accessibility surface while aborting every image request. Both were
+        perfectly happy with a slide that was 4px tall.
+      */}
       <div className={cn("relative", className)}>
         {usable.map((slide, i) => (
           <div
-            key={slide.src}
+            // ⚠ Index in the key, not `src` alone. `service_images` has a
+            // unique index per (service, media) so a service cannot repeat an
+            // image, but the home hero's slides come from
+            // `content_block_items`, which has no such constraint — and two
+            // slides sharing a src would give React duplicate keys and tie the
+            // two stacked frames to one reconciliation slot.
+            key={`${String(i)}:${slide.src}`}
             aria-hidden={i === index ? undefined : true}
             className={cn(
               "absolute inset-0",
-              // The first slide is in flow so the box keeps its height from
-              // the aspect-ratio class on the container; the rest are overlaid.
-              i === 0 && "static",
               i === index ? "opacity-100" : "pointer-events-none opacity-0",
               !reducedMotion && "transition-opacity duration-700 ease-out",
             )}

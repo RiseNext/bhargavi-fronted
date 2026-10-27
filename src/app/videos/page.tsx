@@ -32,7 +32,7 @@ export default async function VideosPage() {
 
       <Section tone="ivory">
         <Wrap>
-          <div className="grid gap-x-gutter gap-y-block sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-x-gutter gap-y-block sm:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4">
             {videos.map((video, i) => (
               <Reveal key={video.id} delay={(i % 3) * 70}>
                 <VideoCard video={video} />

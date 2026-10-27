@@ -122,10 +122,45 @@
 
   /* --- Breakpoints (an `xs` step matters on 320–400px phones) --- */
   --breakpoint-xs: 26rem;
+  /**
+   * ⚠ TUNED TO CARD WIDTH, not to a round number.
+   *
+   * Tailwind's own `2xl` (96rem / 1536px) is no use here — it is a viewport
+   * width, and what decides whether a fourth card column fits is the
+   * CONTAINER width, which is fluid. Below this step four columns would
+   * divide too little content and make every card narrower on a bigger
+   * screen, which is the opposite of the point.
+   *
+   * At 120rem (1920px) the page container is ~1766px, so four columns are
+   * ~381px — within a few pixels of the ~387px a three-up card measures on a
+   * laptop. Re-derive this if `--container-page` changes: the rule is
+   * `container >= 4*cardWidth + 3*gutter + 2*gutter`.
+   */
+  --breakpoint-3xl: 120rem;
 
-  /* --- Containers --- */
-  --container-page: 84rem;
-  --container-wide: 96rem;
+  /* --- Containers ---
+   *
+   * 🔴 FLUID ABOVE THE FLOOR, not a fixed cap.
+   *
+   * These were flat values — `84rem` for the page container — so every
+   * display wider than 1344px got the SAME 1344px of content and spent the
+   * rest on empty margin. On a 2560px monitor that is 608px of nothing down
+   * each side and the site uses 49% of the screen; the client reported it as
+   * the page "sitting in the middle", which is exactly what it was doing.
+   *
+   * ⚠ THE FLOOR IS THE OLD VALUE, deliberately. Below ~1770px `84rem` still
+   * wins, so every laptop and tablet layout is byte-identical to before and
+   * this cannot regress the breakpoints that were tuned against it. Only
+   * screens that were previously wasting space are affected.
+   *
+   * ⚠ AND THERE IS STILL A CEILING. Removing it entirely would stretch
+   * measure beyond readable on ultra-wide displays — the reason a max-width
+   * existed in the first place. The ceiling is raised, not deleted.
+   */
+  --container-page: clamp(84rem, 92vw, 160rem);
+  --container-wide: clamp(96rem, 95vw, 170rem);
+  /* Prose measure — untouched. Line length is a typographic limit, not a
+     screen-size one, so this must NOT scale with the viewport. */
   --container-read: 42rem;
 }
 

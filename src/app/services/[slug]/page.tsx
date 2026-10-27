@@ -255,7 +255,7 @@ export default async function ServiceDetailPage({ params }: Params) {
             label={copy.text("serviceDetail", "related", "label")}
             title={copy.heading("serviceDetail", "related")}
           />
-          <div className="mt-block grid gap-x-gutter gap-y-block sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-block grid gap-x-gutter gap-y-block sm:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4">
             {related.map((s, i) => (
               <Reveal key={s.slug} delay={i * 90}>
                 <ServiceCard service={s} className="h-full" />

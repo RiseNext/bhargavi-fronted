@@ -1,6 +1,6 @@
 import { ButtonLink } from "@/components/ui/Button";
 import { Frame } from "@/components/ui/Media";
-import { Arc, Seed } from "@/components/ui/Decor";
+import { Seed } from "@/components/ui/Decor";
 import { Reveal, Wipe } from "@/components/ui/Reveal";
 import { site } from "@/lib/site";
 import { getContactDetails, getFounder, getServices, getStats } from "@/lib/content";
@@ -64,7 +64,14 @@ export async function Hero() {
 
   return (
     <section className="relative overflow-clip pb-block pt-[calc(var(--spacing-nav)+var(--spacing-block))]">
-      <Arc className="absolute -right-[12%] -top-[8%] w-[min(46rem,70vw)] text-line" />
+      {/* 🔴 The decorative `Arc` was removed here at the client's request.
+          It drew a solid quarter-curve plus a dashed one across the top-right
+          of the section, and at the widths the hero now uses those strokes
+          ran into the portrait card and read as a stray line stuck to its
+          bottom-right corner rather than as background texture.
+
+          ⚠ Removed from THIS section only. `PageHero` and the appointment
+          band still render their own arcs, where nothing overlaps them. */}
 
       {/**
        * Desktop grid
@@ -77,7 +84,31 @@ export async function Hero() {
        * Mobile is a plain column ordered by `order-*`:
        *   headline + CTAs → portrait → copy → wide image → stats
        */}
-      <div className="wrap flex flex-col gap-block lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] lg:items-start lg:gap-x-gutter lg:gap-y-block">
+      {/*
+         ⚠ THE PORTRAIT COLUMN SCALES WITH THE PAGE CONTAINER.
+
+         It was a flat `24rem`. Once `--container-page` grew on wide
+         displays the headline column absorbed every extra pixel and the
+         portrait was left stranded at 384px beside it, which looked smaller
+         on a 2560px screen than it did on a laptop.
+
+         The clamp is tuned to the container's own floor: 26.3vw equals
+         exactly 24rem at 1461px, which is the width where `--container-page`
+         stops being pinned to 84rem and starts tracking 92vw. So every
+         viewport at or below that keeps the original 384px column to the
+         pixel, and only the screens that just gained width spend any of it
+         here.
+
+         ⚠ RE-DERIVE THIS IF `--container-page` CHANGES. The floor vw is
+         `384 / crossoverWidth * 100`, where the crossover is where the
+         container's vw term overtakes its rem floor.
+
+         ⚠ THE 34rem CEILING IS ABOUT HEIGHT, not width. The picture is 4:5,
+         so every pixel of column width costs 1.25 of hero height — at 42rem
+         the hero stood 840px tall on a 2560px screen and left a void under
+         the buttons. 34rem keeps it to ~680px.
+       */}
+      <div className="wrap flex flex-col gap-block lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,clamp(24rem,26.3vw,34rem))] lg:items-start lg:gap-x-gutter lg:gap-y-block">
         {/* Headline + CTAs */}
         <div className="order-1 lg:col-start-1 lg:row-start-1">
           {/* Everything in this column is above the fold, so it plays on load
@@ -179,19 +210,25 @@ export async function Hero() {
         {/*
           Portrait — directly right of the headline.
 
-          ⚠ `lg:self-stretch` + `lg:h-full` on the frame below. The grid is
-          `items-start`, so a fixed 4:5 portrait left the right column ending
-          61px ABOVE the headline column's buttons — a ragged edge down the
-          middle of the fold. Stretching it to the row height squares the two
-          columns off against each other; `object-cover` absorbs the change as
-          a few per cent of horizontal crop on a centred subject, and the
-          aspect ratio is kept below `lg` where the columns stack and there is
-          no edge to align to.
+          🔴 IT KEEPS ITS 4:5 RATIO. This was briefly stretched to the grid
+          row height so its bottom edge squared off against the headline
+          column's buttons. That worked while the headline was the full `d1`
+          display size; once the headline shrank at the client's request AND
+          the column widened on large screens, the row height became far
+          shorter than the column is wide, and `object-cover` turned a
+          portrait photograph into a landscape letterbox with the subject's
+          head cropped off.
+
+          ⚠ So the picture now sets its own height and is the taller of the
+          two columns, which is the ordinary way an image-led hero reads. Do
+          not reintroduce `self-stretch` here without re-checking the crop at
+          1920 and 2560 — it is only safe while the text column is the taller
+          one.
         */}
         <Reveal
           immediate
           delay={140}
-          className="group relative order-2 lg:col-start-2 lg:row-start-1 lg:self-stretch"
+          className="group relative order-2 lg:col-start-2 lg:row-start-1"
         >
           <Frame
             src={founder.photo}
@@ -200,7 +237,7 @@ export async function Hero() {
             priority
             zoom
             sizes="(min-width: 1024px) 26vw, 92vw"
-            className="aspect-4/5 w-full lg:aspect-auto lg:h-full"
+            className="aspect-4/5 w-full"
             imgClassName="object-top"
           />
 

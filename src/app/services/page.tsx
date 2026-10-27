@@ -27,7 +27,7 @@ export default async function ServicesPage() {
 
       <Section tone="ivory">
         <Wrap>
-          <div className="grid gap-gutter sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-gutter sm:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4">
             {services.map((service, i) => (
               <Reveal key={service.slug} delay={(i % 3) * 80}>
                 <ServiceCard service={service} index={i + 1} className="h-full" />

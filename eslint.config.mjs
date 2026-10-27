@@ -14,7 +14,11 @@ const eslintConfig = [
   {
     ignores: [
       "node_modules/**",
-      ".next/**",
+      // Every build directory. `NEXT_DIST_DIR` already gives the careers and
+      // slider suites their own (`.next-test`, `.next-slider-test`), and both
+      // were gitignored but not lint-ignored — so a lint run that happened to
+      // follow an interrupted test walked thousands of generated files.
+      ".next*/**",
       "out/**",
       "build/**",
       "next-env.d.ts",

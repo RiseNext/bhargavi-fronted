@@ -1,0 +1,60 @@
+name: CI
+
+# This repository had NO CI, and that is how `npm test` came to be broken
+# without anyone noticing: the script passed a bare directory to
+# `node --test`, which Node no longer expands, so the command resolved `tests`
+# as a module, threw MODULE_NOT_FOUND and exited 1 — while all 59 real tests
+# sat unrun. A red check nobody runs is indistinguishable from a green one.
+#
+# The backend's own workflow checks this repository out as a fixture, so the
+# CROSS-REPO assertions were covered. Nothing covered this repository's own
+# suite.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      # `tests/careers-page.test.mjs` starts a real Next server against a stub
+      # backend, so this step builds as a side effect and needs the browser
+      # Puppeteer downloads. Chrome is preinstalled on ubuntu-latest runners.
+      - name: Test
+        run: npm test
+
+      # 🔴 `npm run build` IS DELIBERATELY ABSENT, and that is not an oversight.
+      #
+      # Since D-042 every public page fetches its content from the backend at
+      # build time, and the prebuild generator REFUSES to skip when it has no
+      # BACKEND_URL — correctly, because skipping is how a green deploy once
+      # published content weeks out of date. So a build here would need a live
+      # backend plus BACKEND_API_KEY, which would mean putting a production
+      # capability into a workflow that runs on every fork's pull request.
+      #
+      # The build is therefore verified where the credentials already live:
+      # Vercel runs it on every deployment, and the generator fails the build
+      # loudly rather than silently when the backend is unreachable. Typecheck
+      # above catches the class of error a build would catch here.

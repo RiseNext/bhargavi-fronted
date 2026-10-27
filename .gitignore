@@ -15,11 +15,11 @@
 
 # next.js
 /.next/
-# Build directory used by tests/careers-page.test.mjs, via NEXT_DIST_DIR.
-/.next-test/
-# Same, for tests/service-slider.test.mjs. The test removes it on the way out;
-# this covers a run that is interrupted before it can.
-/.next-slider-test/
+# Every alternate NEXT_DIST_DIR build directory, not just the two the test
+# suites use. `/.next-test/` and `/.next-slider-test/` were listed one at a
+# time, so a release check that built into `.next-e2e` left an untracked build
+# directory sitting in `git status` beside the changes under review.
+/.next-*/
 /out/
 
 # production

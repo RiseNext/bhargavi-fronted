@@ -1,5 +1,6 @@
 import { ButtonLink } from "@/components/ui/Button";
 import { Frame } from "@/components/ui/Media";
+import { Slider } from "@/components/ui/Slider";
 import { Arc, Seed } from "@/components/ui/Decor";
 import { Reveal, Wipe } from "@/components/ui/Reveal";
 import { site } from "@/lib/site";
@@ -7,16 +8,30 @@ import { getContactDetails, getFounder, getServices, getStats } from "@/lib/cont
 import * as copy from "@/lib/copy";
 
 /**
- * The wide treatment image, the single `home.hero` image row under D-027.
+ * The wide treatment image — now the `home.hero` image GROUP, not one row.
+ *
+ * 🔴 D-044 widens D-027's "1 row" to a collection. `copy.items` reads every
+ * row in `sort_order`, so a hero with one image behaves exactly as before
+ * (`Slider` renders a single slide as a plain `Frame`) and gains arrows, dots
+ * and autoplay the moment an administrator adds a second. D-027's mapping
+ * fixed the row COUNT at the time it was written; it was never a ceiling.
+ *
+ * ⚠ Still `copy.items`, which THROWS on an empty group — the same loud failure
+ * `copy.item(…, 0)` gave. A hero that silently lost its photograph to a seed
+ * that did not run is the failure `lib/copy.ts` exists to make impossible.
  *
  * 🔴 The portrait beside the headline is NOT a row here, deliberately. Its src
- * is `site.founder.photo` and its alt is built from the founder's honorific,
- * name and role — storing either would freeze a copy of a derived value, which
- * is the duplication defect `lib/hours.ts` exists to prevent. D-027's mapping
- * says so explicitly: "`home.hero` → `images` (1 row, the wide treatment
- * image)".
+ * is `founder.photo` and its alt is built from the founder's honorific, name
+ * and role — storing either would freeze a copy of a derived value, which is
+ * the duplication defect `lib/hours.ts` exists to prevent. It is NOT part of
+ * the slider and must not become one: it is the one photograph that is
+ * actually her, and it carries the credential chip.
  */
-const wideImage = copy.item("home", "hero", "images", 0);
+const heroSlides = copy.items("home", "hero", "images").map((row, i) => ({
+  src: copy.itemText(row, "image", `home.hero.images[${String(i)}]`),
+  alt: copy.itemText(row, "alt", `home.hero.images[${String(i)}]`),
+  ...(row.isDefault === true ? { isDefault: true as const } : {}),
+}));
 const heroCta = copy.action("home", "hero");
 const heroCta2 = copy.action("home", "hero", "cta2");
 
@@ -254,9 +269,9 @@ export async function Hero() {
           delay={280}
           className="group order-4 lg:col-start-1 lg:row-span-2 lg:row-start-2"
         >
-          <Frame
-            src={copy.itemText(wideImage, "image", "home.hero.images[0]")}
-            alt={copy.itemText(wideImage, "alt", "home.hero.images[0]")}
+          <Slider
+            slides={heroSlides}
+            label="Treatment photographs"
             radius="xl"
             zoom
             sizes="(min-width: 1024px) 62vw, 92vw"

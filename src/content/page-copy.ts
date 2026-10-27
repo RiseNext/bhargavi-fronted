@@ -19,6 +19,8 @@ export type PageCopyItem = {
   image?: string;
   alt?: string;
   lines?: string[];
+  /** The slide an image group opens on, when rendered as a slider (D-044). */
+  isDefault?: boolean;
 };
 
 export type PageCopyBlock = {

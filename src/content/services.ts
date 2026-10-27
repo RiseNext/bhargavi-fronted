@@ -22,6 +22,11 @@ export type Service = {
   priceFrom?: string;
   /** Display string, e.g. "2–4 sittings". Absent when unknown. */
   typicalCourse?: string;
+  /**
+   * Slider images in display order (D-044). Absent for a service with no
+   * collection, which renders `image` above as a single frame.
+   */
+  images?: { src: string; alt: string; isDefault?: boolean }[];
 };
 
 export const services: Service[] = [

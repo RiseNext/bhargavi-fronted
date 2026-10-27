@@ -417,6 +417,9 @@ export async function getPageCopy(): Promise<PageCopyResult> {
         ]) {
           if (item[field] !== null && item[field] !== undefined) row[field] = item[field];
         }
+        // D-044 · only when true, matching the generator: `false` on every
+        // pre-migration row, and an absent key reads as "open on the first".
+        if (item.isDefault === true) row.isDefault = true;
         groups[item.groupKey]?.push(row);
       }
       entry.items = groups as PageCopyBlock["items"];

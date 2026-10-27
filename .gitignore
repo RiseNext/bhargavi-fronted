@@ -17,6 +17,9 @@
 /.next/
 # Build directory used by tests/careers-page.test.mjs, via NEXT_DIST_DIR.
 /.next-test/
+# Same, for tests/service-slider.test.mjs. The test removes it on the way out;
+# this covers a run that is interrupted before it can.
+/.next-slider-test/
 /out/
 
 # production

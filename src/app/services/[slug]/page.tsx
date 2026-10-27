@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { IndexRule, Section, SectionHead, Wrap } from "@/components/ui/Section";
-import { Frame } from "@/components/ui/Media";
+import { Slider } from "@/components/ui/Slider";
 import { Reveal, Wipe } from "@/components/ui/Reveal";
 import { Arc } from "@/components/ui/Decor";
 import { ServiceCard } from "@/components/cards/ServiceCard";
@@ -143,10 +143,29 @@ export default async function ServiceDetailPage({ params }: Params) {
             </dl>
           </Reveal>
 
+          {/*
+            D-044 — this service's own slider.
+
+            🔴 `service.images ?? [single]`. Every service keeps its own
+            independent collection, and a service with none falls back to the
+            single `service.image` it has always shown. `Slider` renders a
+            one-slide collection as a plain `Frame`, so that fallback is the
+            exact markup this replaced — same radius, ratio, priority and zoom.
+
+            ⚠ The alt text differs by source on purpose: a collection's slides
+            carry admin-authored alt describing THAT photograph, while the
+            fallback keeps the derived "{title} at {site}" string the page used
+            before. Overwriting authored alt with a derived one would be a
+            regression in exactly the field screen-reader users depend on.
+          */}
           <Reveal delay={320} className="group mt-block">
-            <Frame
-              src={service.image}
-              alt={`${service.title} at ${site.name}`}
+            <Slider
+              slides={
+                service.images ?? [
+                  { src: service.image, alt: `${service.title} at ${site.name}` }
+                ]
+              }
+              label={`${service.title} photos`}
               radius="xl"
               priority
               zoom

@@ -84,6 +84,13 @@ export interface RawService {
   updatedAt: string;
   priceFromPaise: number | null;
   typicalCourse: string | null;
+  /**
+   * D-044 · slider images in display order. Optional on the wire so an older
+   * backend — one deployed before migration 017 — still shapes cleanly; the
+   * service then renders its single `image`, which is the pre-feature
+   * behaviour rather than an error.
+   */
+  images?: { src: string; alt: string; isDefault?: boolean }[];
 }
 
 /** ₹100 renders as "From ₹100" — no decimals for a whole-rupee amount. */
@@ -106,6 +113,10 @@ export function shapeService(s: RawService): Service {
   };
   if (s.priceFromPaise !== null) row.priceFrom = formatRupees(s.priceFromPaise);
   if (s.typicalCourse !== null) row.typicalCourse = s.typicalCourse;
+  // Omitted when empty rather than set to `[]`, so "has a collection" is a
+  // single check at the call site and the shape matches what the generator
+  // emits for the same service.
+  if (Array.isArray(s.images) && s.images.length > 0) row.images = s.images;
   return row;
 }
 

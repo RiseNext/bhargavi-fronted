@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode, SyntheticEvent } from "react";
 import { cn } from "@/lib/cn";
 
 /**
@@ -18,6 +18,8 @@ export function Frame({
   zoom = false,
   fit = "cover",
   bordered = true,
+  style,
+  onNaturalSize,
   children,
 }: {
   src: string;
@@ -37,6 +39,16 @@ export function Frame({
   fit?: "cover" | "contain";
   /** Walnut edge. On by default — opt out only for inset/decorative art. */
   bordered?: boolean;
+  /** Inline box sizing — an `aspectRatio` measured at runtime, in practice. */
+  style?: CSSProperties;
+  /**
+   * Fires once the photo has decoded, with its natural width ÷ height.
+   *
+   * ⚠ A CLIENT-ONLY PROP. Passing it from a server component is a build error,
+   * which is correct: only a component that can hold state has any use for the
+   * measurement. `Slider` uses it to shape its box around the photograph.
+   */
+  onNaturalSize?: (ratio: number) => void;
   /**
    * Overlay content — scrims, badges, hover labels. Rendered inside the
    * clipped, bordered box so it lands on the photo rather than over the edge.
@@ -60,6 +72,7 @@ export function Frame({
         bordered && "img-edge",
         className,
       )}
+      {...(style === undefined ? {} : { style })}
     >
       <Image
         src={src}
@@ -73,6 +86,16 @@ export function Frame({
             "transition-transform duration-[900ms] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.04]",
           imgClassName,
         )}
+        {...(onNaturalSize === undefined
+          ? {}
+          : {
+              onLoad: (e: SyntheticEvent<HTMLImageElement>) => {
+                const img = e.currentTarget;
+                if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+                  onNaturalSize(img.naturalWidth / img.naturalHeight);
+                }
+              },
+            })}
       />
       {children}
     </div>

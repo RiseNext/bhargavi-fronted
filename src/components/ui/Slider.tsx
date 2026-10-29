@@ -43,6 +43,7 @@ export function Slider({
   priority = false,
   zoom = false,
   fit = "cover",
+  fitToImage = false,
   radius = "xl",
   imgClassName,
 }: {
@@ -69,6 +70,24 @@ export function Slider({
    * to the other's box loses part of the photograph.
    */
   fit?: "cover" | "contain";
+  /**
+   * Shape the box around the photograph instead of around a chosen ratio.
+   *
+   * The opening slide reports its natural ratio once it decodes, and that
+   * becomes the box — so a square photo gets a square frame and a landscape
+   * one gets a landscape frame, with no sand band above and below and nothing
+   * cropped away. `className` still supplies the ratio the server renders and
+   * the box the measurement settles from, so this never leaves a zero-height
+   * container.
+   *
+   * 🔴 ONLY THE OPENING SLIDE IS MEASURED, deliberately. Re-measuring on each
+   * advance would resize the frame mid-slideshow and shove the page around
+   * under the reader — `tests/service-slider.test.mjs` asserts one height
+   * across every slide. A collection whose photographs disagree about shape
+   * letterboxes the odd ones instead; the main image, which is the one this
+   * box is cut for, always fits exactly.
+   */
+  fitToImage?: boolean;
   radius?: "sm" | "md" | "lg" | "xl" | "full" | "none";
   imgClassName?: string;
 }) {
@@ -76,6 +95,10 @@ export function Slider({
   const count = usable.length;
 
   const [index, setIndex] = useState(() => initialIndex(usable));
+  /* Captured once: `index` moves with the slideshow, and the box must keep
+     taking its shape from the photo it opened on. */
+  const [openingIndex] = useState(() => initialIndex(usable));
+  const [ratio, setRatio] = useState<number | null>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [paused, setPaused] = useState(false);
 
@@ -129,6 +152,15 @@ export function Slider({
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, []);
 
+  /** The measured box, once the opening slide has decoded. */
+  const boxStyle =
+    fitToImage && ratio !== null ? { aspectRatio: String(ratio) } : undefined;
+
+  const measure = (i: number) =>
+    fitToImage && i === openingIndex
+      ? (next: number) => setRatio((prev) => (prev === null ? next : prev))
+      : undefined;
+
   // An empty collection renders nothing at all. The callers that have a single
   // fallback image pass it in, so reaching here with none means there is
   // genuinely no image to show — and an empty bordered box is worse than a gap.
@@ -150,6 +182,11 @@ export function Slider({
         {...(sizes === undefined ? {} : { sizes })}
         {...(className === undefined ? {} : { className })}
         {...(imgClassName === undefined ? {} : { imgClassName })}
+        {...(boxStyle === undefined ? {} : { style: boxStyle })}
+        {...(() => {
+          const onNaturalSize = measure(0);
+          return onNaturalSize === undefined ? {} : { onNaturalSize };
+        })()}
       />
     );
   }
@@ -212,7 +249,15 @@ export function Slider({
         accessibility surface while aborting every image request. Both were
         perfectly happy with a slide that was 4px tall.
       */}
-      <div className={cn("relative", className)}>
+      <div
+        className={cn(
+          "relative",
+          /* A settle rather than a jolt when the measurement lands. */
+          fitToImage && "transition-[aspect-ratio] duration-500 ease-[cubic-bezier(.22,1,.36,1)]",
+          className,
+        )}
+        {...(boxStyle === undefined ? {} : { style: boxStyle })}
+      >
         {usable.map((slide, i) => (
           <div
             // ⚠ Index in the key, not `src` alone. `service_images` has a
@@ -241,6 +286,10 @@ export function Slider({
               {...(sizes === undefined ? {} : { sizes })}
               className="h-full w-full"
               {...(imgClassName === undefined ? {} : { imgClassName })}
+              {...(() => {
+                const onNaturalSize = measure(i);
+                return onNaturalSize === undefined ? {} : { onNaturalSize };
+              })()}
             />
           </div>
         ))}

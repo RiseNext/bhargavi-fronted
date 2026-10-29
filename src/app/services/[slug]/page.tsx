@@ -207,9 +207,11 @@ export default async function ServiceDetailPage({ params }: Params) {
                   derived one would be a regression in exactly the field
                   screen-reader users depend on.
 
-                  Square box + `contain`: the therapy photos are 466x466, so
-                  they land in here whole, and a landscape slide letterboxes on
-                  the sand rather than losing its top and bottom to a crop.
+                  `fitToImage` cuts the box to the photograph rather than the
+                  other way round: the 466x466 therapies get a square frame and
+                  a landscape one gets a landscape frame, so nothing is cropped
+                  AND no sand band is left over. The square `className` is what
+                  the server renders and what the measurement settles from.
                   `zoom` is deliberately off — scaling the photo inside a
                   clipped frame sliced its edges away on hover.
                 */}
@@ -223,6 +225,7 @@ export default async function ServiceDetailPage({ params }: Params) {
                   radius="xl"
                   priority
                   fit="contain"
+                  fitToImage
                   sizes="(min-width: 1024px) 46vw, 92vw"
                   className="aspect-square w-full"
                 />

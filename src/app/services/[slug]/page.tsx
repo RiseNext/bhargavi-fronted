@@ -8,6 +8,7 @@ import { Reveal, Wipe } from "@/components/ui/Reveal";
 import { Arc } from "@/components/ui/Decor";
 import { ServiceCard } from "@/components/cards/ServiceCard";
 import { AppointmentForm } from "@/components/forms/AppointmentForm";
+import { BookingSheet } from "@/components/forms/BookingSheet";
 import { CtaBand } from "@/components/sections/HomeSections";
 import { getContactDetails, getServiceBySlug, getServices } from "@/lib/content";
 import { site } from "@/lib/site";
@@ -113,87 +114,191 @@ export default async function ServiceDetailPage({ params }: Params) {
             </nav>
           </Reveal>
 
-          <div className="mt-block grid gap-x-block gap-y-stack lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-end">
-            <Wipe as="h1" delay={80} className="max-w-[14ch] text-d2 text-ink">
-              {service.title}
-            </Wipe>
-            <Reveal delay={200} className="lg:pb-2">
-              <p className="max-w-[46ch] text-lead text-muted">{service.excerpt}</p>
+          {/* The heading used to sit alone with the whole right half of the
+              screen empty. The meta box fills it, and on a phone the booking
+              button takes the place of the form column. */}
+          <div className="mt-block grid gap-x-block gap-y-stack lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-end">
+            <div>
+              <Wipe as="h1" delay={80} className="max-w-[14ch] text-d2 text-ink">
+                {service.title}
+              </Wipe>
+              <Reveal delay={200}>
+                <p className="mt-stack max-w-[46ch] text-lead text-muted">{service.excerpt}</p>
+              </Reveal>
+
+              {/* Phone only — the desktop form is its own column further down. */}
+              <Reveal delay={260} className="mt-stack lg:hidden">
+                <BookingSheet
+                  services={services}
+                  branches={contact.branches}
+                  defaultService={service.slug}
+                  title={service.title}
+                  note={copy.extra("serviceDetail", "bookingAside", "note")}
+                />
+              </Reveal>
+            </div>
+
+            <Reveal delay={320}>
+              {/*
+                Session length carries the row above on its own; the two
+                shorter facts split the row below it. A single straight line of
+                three cells made the values tiny and the box read as a toolbar.
+
+                🔴 `priceFrom` and `typicalCourse` ARE generated fields. They
+                were duplicated here as literals, so an admin price change moved
+                nothing on the page. The stored value is the complete phrase
+                "From ₹100", and its cell already labels itself "From" — so the
+                redundant prefix is dropped rather than rendered twice.
+              */}
+              <dl className="overflow-hidden rounded-xl border border-line bg-paper text-center">
+                <div className="px-[clamp(1rem,0.7rem+1.2vw,1.75rem)] py-[clamp(1.1rem,0.85rem+1vw,1.6rem)]">
+                  <dt className="text-label uppercase tracking-[0.12em] text-terracotta">
+                    {metaLabel(0)}
+                  </dt>
+                  <dd className="mt-2 font-display text-[clamp(1.45rem,1.15rem+1.4vw,2.25rem)] leading-tight text-ink">
+                    {service.duration || "—"}
+                  </dd>
+                </div>
+
+                <div className="grid grid-cols-2 divide-x divide-line border-t border-line">
+                  {[
+                    { k: metaLabel(1), v: (service.priceFrom ?? "").replace(/^From\s+/i, "") },
+                    { k: metaLabel(2), v: service.typicalCourse },
+                  ].map((row) => (
+                    <div
+                      key={row.k}
+                      className="px-[clamp(0.7rem,0.45rem+1vw,1.5rem)] py-[clamp(1rem,0.8rem+0.9vw,1.5rem)]"
+                    >
+                      <dt className="text-label uppercase tracking-[0.12em] text-terracotta">
+                        {row.k}
+                      </dt>
+                      <dd className="mt-2 font-display text-[clamp(1.05rem,0.85rem+1vw,1.6rem)] leading-snug text-ink">
+                        {row.v || "—"}
+                      </dd>
+                    </div>
+                  ))}
+                </div>
+              </dl>
             </Reveal>
           </div>
-
-          <Reveal delay={260}>
-            <dl className="mt-block grid gap-y-stack border-y border-line py-stack sm:grid-cols-3">
-              {[
-                { k: metaLabel(0), v: service.duration },
-                // 🔴 `priceFrom` and `typicalCourse` ARE generated fields. They
-                // were duplicated here as literals, so an admin price change
-                // moved nothing on the page. The stored value is the complete
-                // phrase "From ₹100", and this cell already labels itself
-                // "From" — so the redundant prefix is dropped rather than
-                // rendered twice.
-                { k: metaLabel(1), v: (service.priceFrom ?? "").replace(/^From\s+/i, "") },
-                { k: metaLabel(2), v: service.typicalCourse },
-              ].map((row) => (
-                <div key={row.k}>
-                  <dt className="label text-terracotta">{row.k}</dt>
-                  <dd className="mt-2 font-display text-h4 text-ink">{row.v}</dd>
-                </div>
-              ))}
-            </dl>
-          </Reveal>
-
-          {/*
-            D-044 — this service's own slider.
-
-            🔴 `service.images ?? [single]`. Every service keeps its own
-            independent collection, and a service with none falls back to the
-            single `service.image` it has always shown. `Slider` renders a
-            one-slide collection as a plain `Frame`, so that fallback is the
-            exact markup this replaced — same radius, ratio, priority and zoom.
-
-            ⚠ The alt text differs by source on purpose: a collection's slides
-            carry admin-authored alt describing THAT photograph, while the
-            fallback keeps the derived "{title} at {site}" string the page used
-            before. Overwriting authored alt with a derived one would be a
-            regression in exactly the field screen-reader users depend on.
-          */}
-          <Reveal delay={320} className="group mt-block">
-            <Slider
-              slides={
-                service.images ?? [
-                  { src: service.image, alt: `${service.title} at ${site.name}` }
-                ]
-              }
-              label={`${service.title} photos`}
-              radius="xl"
-              priority
-              zoom
-              sizes="(min-width: 1024px) 88vw, 92vw"
-              className="aspect-4/5 w-full sm:aspect-16/9"
-            />
-          </Reveal>
         </div>
       </section>
 
-      {/* Body + aside */}
+      {/* Photo and booking share a row; everything written about the
+          therapy runs underneath both, full width. */}
       <Section tone="ivory">
-        <Wrap className="grid gap-block lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-          <div>
-            <SectionHead
-              align="left"
-              label={copy.text("serviceDetail", "overview", "label")}
-              title={copy.heading("serviceDetail", "overview")}
-            />
-            <div className="prose mt-block">
-              {service.body.map((para, i) => (
-                <Reveal key={i} delay={i * 70} as="p">
-                  {para}
-                </Reveal>
-              ))}
+        <Wrap>
+          <div className="grid gap-block lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] lg:items-start">
+            <div>
+              <Reveal>
+                {/*
+                  D-044 — this service's own slider.
+
+                  🔴 `service.images ?? [single]`. Every service keeps its own
+                  independent collection, and a service with none falls back to
+                  the single `service.image` it has always shown. `Slider`
+                  renders a one-slide collection as a plain `Frame`, so that
+                  fallback is the exact markup this replaced.
+
+                  ⚠ The alt text differs by source on purpose: a collection's
+                  slides carry admin-authored alt describing THAT photograph,
+                  while the fallback keeps the derived "{title} at {site}"
+                  string the page used before. Overwriting authored alt with a
+                  derived one would be a regression in exactly the field
+                  screen-reader users depend on.
+
+                  Square box + `contain`: the therapy photos are 466x466, so
+                  they land in here whole, and a landscape slide letterboxes on
+                  the sand rather than losing its top and bottom to a crop.
+                  `zoom` is deliberately off — scaling the photo inside a
+                  clipped frame sliced its edges away on hover.
+                */}
+                <Slider
+                  slides={
+                    service.images ?? [
+                      { src: service.image, alt: `${service.title} at ${site.name}` },
+                    ]
+                  }
+                  label={`${service.title} photos`}
+                  radius="xl"
+                  priority
+                  fit="contain"
+                  sizes="(min-width: 1024px) 46vw, 92vw"
+                  className="aspect-square w-full"
+                />
+              </Reveal>
+
+              <Reveal delay={120}>
+                <div className="mt-gutter rounded-xl border border-line p-[clamp(1.25rem,0.9rem+1.6vw,2rem)]">
+                  <p className="label text-terracotta">
+                    {copy.text("serviceDetail", "callAside", "label")}
+                  </p>
+                  <div className="mt-stack grid gap-stack sm:grid-cols-2 lg:grid-cols-1">
+                    {site.phones.map((p) => (
+                      <a
+                        key={p.href}
+                        href={p.href}
+                        className="block font-display text-h3 tabular-nums text-ink transition-colors hover:text-terracotta"
+                      >
+                        <span className="block text-label uppercase tracking-[0.12em] text-muted">
+                          {p.branch}
+                        </span>
+                        {p.label}
+                      </a>
+                    ))}
+                  </div>
+                  {/* Derived from the generated hours (D-028). Was a literal. */}
+                  <p className="mt-stack text-small text-muted">{hoursShort}</p>
+                  {/* 🔴 The "Ask on WhatsApp" button was removed here at the
+                      client's request. It was also the last caller of
+                      `whatsappUrl` with no branch argument, so it silently
+                      addressed one clinic's line — the same defect the contact
+                      form's branch step exists to fix. The appointment form
+                      beside this asks which branch and carries the therapy
+                      name with it, so nothing is lost. */}
+                </div>
+              </Reveal>
             </div>
 
-            <div className="mt-block">
+            {/* Below `lg` this column is replaced by the bottom sheet behind
+                the hero's booking button — one form on the page either way. */}
+            <aside id="book" className="hidden lg:sticky lg:top-nav lg:block lg:self-start">
+              <Reveal delay={120}>
+                <div className="rounded-xl border border-line bg-paper p-[clamp(1.25rem,0.9rem+1.6vw,2rem)]">
+                  <h2 className="text-h3 text-ink">Book {service.title}</h2>
+                  <p className="mt-2 text-small text-muted">
+                    {copy.extra("serviceDetail", "bookingAside", "note")}
+                  </p>
+                  <div className="mt-block">
+                    <AppointmentForm
+                      services={services}
+                      branches={contact.branches}
+                      defaultService={service.slug}
+                      compact
+                    />
+                  </div>
+                </div>
+              </Reveal>
+            </aside>
+          </div>
+
+          <div className="mt-block grid gap-x-block gap-y-block lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-start">
+            <div>
+              <SectionHead
+                align="left"
+                label={copy.text("serviceDetail", "overview", "label")}
+                title={copy.heading("serviceDetail", "overview")}
+              />
+              <div className="prose mt-block">
+                {service.body.map((para, i) => (
+                  <Reveal key={i} delay={i * 70} as="p">
+                    {para}
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+
+            <div>
               <SectionHead
                 align="left"
                 label={copy.text("serviceDetail", "indications", "label")}
@@ -210,60 +315,13 @@ export default async function ServiceDetailPage({ params }: Params) {
                 ))}
               </ul>
             </div>
-
-            <Reveal delay={160}>
-              <p className="mt-block rounded-lg bg-olive-soft px-[clamp(1.1rem,0.9rem+1vw,1.75rem)] py-stack text-small text-olive">
-                {copy.withLeadIn("serviceDetail", "disclaimer", "lead", "font-semibold")}
-              </p>
-            </Reveal>
           </div>
 
-          {/* Sticky booking aside */}
-          <aside id="book" className="lg:sticky lg:top-nav lg:self-start">
-            <Reveal>
-              <div className="rounded-xl border border-line bg-paper p-[clamp(1.25rem,0.9rem+1.6vw,2rem)]">
-                <h2 className="text-h3 text-ink">Book {service.title}</h2>
-                <p className="mt-2 text-small text-muted">
-                  {copy.extra("serviceDetail", "bookingAside", "note")}
-                </p>
-                <div className="mt-block">
-                  <AppointmentForm
-                    services={services}
-                    branches={contact.branches}
-                    defaultService={service.slug}
-                    compact
-                  />
-                </div>
-              </div>
-
-              <div className="mt-gutter rounded-xl border border-line p-[clamp(1.25rem,0.9rem+1.6vw,2rem)]">
-                <p className="label text-terracotta">
-                  {copy.text("serviceDetail", "callAside", "label")}
-                </p>
-                {site.phones.map((p) => (
-                  <a
-                    key={p.href}
-                    href={p.href}
-                    className="mt-2 block font-display text-h3 tabular-nums text-ink transition-colors hover:text-terracotta"
-                  >
-                    <span className="block text-label uppercase tracking-[0.12em] text-muted">
-                      {p.branch}
-                    </span>
-                    {p.label}
-                  </a>
-                ))}
-                {/* Derived from the generated hours (D-028). Was a literal. */}
-                <p className="mt-stack text-small text-muted">{hoursShort}</p>
-                {/* 🔴 The "Ask on WhatsApp" button was removed here at the
-                    client's request. It was also the last caller of
-                    `whatsappUrl` with no branch argument, so it silently
-                    addressed one clinic's line — the same defect the contact
-                    form's branch step exists to fix. The appointment form
-                    directly above asks which branch and carries the therapy
-                    name with it, so nothing is lost. */}
-              </div>
-            </Reveal>
-          </aside>
+          <Reveal delay={160}>
+            <p className="mt-block rounded-lg bg-olive-soft px-[clamp(1.1rem,0.9rem+1vw,1.75rem)] py-stack text-small text-olive">
+              {copy.withLeadIn("serviceDetail", "disclaimer", "lead", "font-semibold")}
+            </p>
+          </Reveal>
         </Wrap>
       </Section>
 

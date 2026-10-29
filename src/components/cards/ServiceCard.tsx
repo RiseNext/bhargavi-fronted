@@ -5,8 +5,9 @@ import { cn } from "@/lib/cn";
 
 /**
  * A matted print: paper card, photo inset behind its walnut edge, everything
- * else reacting to one hover on the card — lift, warm shadow, photo push-in,
- * and a "View therapy" pill rising over the image.
+ * else reacting to one hover on the card — lift, warm shadow, scrim, and a
+ * "View therapy" pill rising over the image. The photo itself never moves or
+ * scales, so the framing you see at rest is the whole framing.
  */
 export function ServiceCard({
   service,
@@ -20,7 +21,7 @@ export function ServiceCard({
   return (
     <article
       className={cn(
-        "group relative flex flex-col rounded-xl border border-line bg-paper p-[0.6rem]",
+        "group relative flex flex-col rounded-xl border border-line bg-paper p-2.5 sm:p-3",
         "transition-[transform,box-shadow,border-color] duration-500 ease-[cubic-bezier(.22,1,.36,1)]",
         "hover:-translate-y-1.5 hover:border-walnut-soft/45 hover:shadow-[0_1.5rem_2.5rem_-1.25rem_rgb(61_42_30/0.35)]",
         className,
@@ -30,9 +31,8 @@ export function ServiceCard({
         src={service.image}
         alt=""
         radius="lg"
-        zoom
         sizes="(min-width: 1024px) 31vw, (min-width: 640px) 46vw, 92vw"
-        className="aspect-4/3 w-full"
+        className="aspect-[16/10] w-full"
       >
         {/* Scrim deepens so the pill stays readable over any photo. */}
         <span
@@ -60,7 +60,7 @@ export function ServiceCard({
         </span>
       </Frame>
 
-      <div className="flex flex-1 flex-col px-2 pb-1 pt-stack">
+      <div className="flex flex-1 flex-col px-1.5 pb-1 pt-stack">
         <h3 className="text-h3 text-ink transition-colors duration-300 group-hover:text-terracotta">
           <Link
             href={`/services/${service.slug}`}

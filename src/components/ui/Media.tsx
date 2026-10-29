@@ -16,6 +16,7 @@ export function Frame({
   priority = false,
   radius = "lg",
   zoom = false,
+  fit = "cover",
   bordered = true,
   children,
 }: {
@@ -28,6 +29,12 @@ export function Frame({
   radius?: "sm" | "md" | "lg" | "xl" | "full" | "none";
   /** Scale the image slightly when a parent `.group` is hovered. */
   zoom?: boolean;
+  /**
+   * `cover` fills the frame and crops whatever overflows. `contain` fits the
+   * whole picture inside it, letterboxing on the sand ground — use it where
+   * losing an edge of the photo is not acceptable.
+   */
+  fit?: "cover" | "contain";
   /** Walnut edge. On by default — opt out only for inset/decorative art. */
   bordered?: boolean;
   /**
@@ -61,7 +68,7 @@ export function Frame({
         sizes={sizes}
         priority={priority}
         className={cn(
-          "object-cover",
+          fit === "contain" ? "object-contain" : "object-cover",
           zoom &&
             "transition-transform duration-[900ms] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.04]",
           imgClassName,

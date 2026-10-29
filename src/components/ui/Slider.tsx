@@ -42,6 +42,7 @@ export function Slider({
   sizes,
   priority = false,
   zoom = false,
+  fit = "cover",
   radius = "xl",
   imgClassName,
 }: {
@@ -62,6 +63,12 @@ export function Slider({
   sizes?: string;
   priority?: boolean;
   zoom?: boolean;
+  /**
+   * Handed straight to every slide's `Frame`. `contain` is what a service page
+   * uses: its collection mixes square and landscape uploads, and cropping one
+   * to the other's box loses part of the photograph.
+   */
+  fit?: "cover" | "contain";
   radius?: "sm" | "md" | "lg" | "xl" | "full" | "none";
   imgClassName?: string;
 }) {
@@ -139,6 +146,7 @@ export function Slider({
         radius={radius}
         priority={priority}
         zoom={zoom}
+        fit={fit}
         {...(sizes === undefined ? {} : { sizes })}
         {...(className === undefined ? {} : { className })}
         {...(imgClassName === undefined ? {} : { imgClassName })}
@@ -229,6 +237,7 @@ export function Slider({
               // bandwidth; the others load as they are reached.
               priority={priority && i === index}
               zoom={zoom}
+              fit={fit}
               {...(sizes === undefined ? {} : { sizes })}
               className="h-full w-full"
               {...(imgClassName === undefined ? {} : { imgClassName })}
